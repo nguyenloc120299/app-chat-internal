@@ -1,21 +1,20 @@
-import { createSlice } from '@reduxjs/toolkit'
-
-
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-
+  conservation: false,
   socket: null,
-}
+};
 
 const appSlice = createSlice({
-  name: 'app',
+  name: "app",
   initialState,
   reducers: {
-    
+    changeConservation: (state, action) => {
+      state.conservation = action.payload;
+    },
   },
-})
+});
 
-export const {
-} = appSlice.actions
+export const { changeConservation } = appSlice.actions;
 
-export default appSlice.reducer
+export default appSlice.reducer;

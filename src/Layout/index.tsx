@@ -15,6 +15,9 @@ import { Outlet } from "react-router-dom";
 import SiderMain from "./SiderMain";
 import useContentResizer from "hooks/useContentResizer";
 import { LayoutStyled } from "styles/theme";
+import HeaderChat from "components/HeaderChat";
+import SiderInfo from "./SiderInfo";
+import { isMobile } from "mobile-device-detect";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -39,36 +42,16 @@ const items: MenuProps["items"] = [
 
 const LayoutMain: React.FC = () => {
   const token = theme.useToken();
-
   return (
     <LayoutStyled hasSider>
       <SiderMain />
       <Layout className="site-layout">
-        <Header
-          style={{
-            backgroundColor: token.token.colorBgContainer,
-            position: "sticky",
-            top: 0,
-            zIndex: 1,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-          }}
-        ></Header>
-        <Content style={{ marginBottom: "50px" }}>
+        <HeaderChat />
+        <Content>
           <Outlet />
         </Content>
       </Layout>
-      <Sider
-        width={350}
-        style={{
-          overflow: "auto",
-          height: "100%",
-          backgroundColor: token.token.colorBgContainer,
-        }}
-      >
-        <div>Thông tin nhóm</div>
-      </Sider>
+      {!isMobile && <SiderInfo />}
     </LayoutStyled>
   );
 };

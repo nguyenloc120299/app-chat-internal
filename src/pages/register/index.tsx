@@ -1,50 +1,114 @@
 import type { FC } from "react";
-import { Button, Card, Checkbox, Col, Form, Input, Radio, Row } from "antd";
+import { Button, Card,  Col, Form, Input, Checkbox, Row } from "antd";
 import styled from "styled-components";
 import logo from "assets/images/photo_2023-07-26_13-50-12.jpg";
 import { Link } from "react-router-dom";
 import { colors } from "styles/theme";
+import { isMobile } from "mobile-device-detect";
 const Register: FC = () => {
+  const onFinished = async (form: any) => {
+    console.log(form);
+  };
   return (
     <LoginPage className="login-page">
       <Card>
-        <Form className="login-page-form">
+        <Form className="login-page-form" onFinish={onFinished}>
           <div className="title">Đăng nhập vào để kết nối với ứng dụng</div>
           <div className="logo">
             <img src={logo} alt="logo" />
           </div>
-          <Form.Item name="">
+          <Form.Item
+            name="phone"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập số điện thoại",
+              },
+              {
+                pattern: /^(0|\+84)(\d{9,10})$/,
+                message: "Số điện thoại không hợp lệ",
+              },
+            ]}
+          >
             <Input placeholder="Số điện thoại" />
           </Form.Item>
-          <Form.Item name="">
+          <Form.Item
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập họ và tên",
+              },
+            ]}
+          >
             <Input placeholder="Họ và tên" />
           </Form.Item>
-          <Form.Item name="">
+          <Form.Item
+            name="linkTelegram"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập link telegram",
+              },
+              {
+                pattern: /^https?:\/\/t\.me\//i,
+                message: "Link telegram của bạn không hợp lệ",
+              },
+            ]}
+          >
             <Input placeholder="Link telegram của bạn" />
           </Form.Item>
-          <Form.Item name="">
+          <Form.Item
+            name="linkFaceBook"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập link facebook",
+              },
+              {
+                pattern: /^https:\/\/(?:www|m)\.facebook\.com\//i,
+                message: "Link facebook của bạn không hợp lệ",
+              },
+            ]}
+          >
             <Input placeholder="Link facebook của bạn" />
           </Form.Item>
-          <Form.Item name="password">
+          <Form.Item
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập mật khẩu",
+              },
+            ]}
+          >
             <Input type="password" placeholder="Mật khẩu" />
           </Form.Item>
-          <Form.Item name="password">
+          <Form.Item
+            name="confirmPassword"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập lại mật khẩu",
+              },
+            ]}
+          >
             <Input type="password" placeholder="Nhập lại mật khẩu" />
           </Form.Item>
           <Form.Item
-            name="remember"
+            name="roleCode"
             valuePropName="checked"
             wrapperCol={{ offset: 0, span: 16 }}
           >
             <Row>
               <Col>
-                <Radio>Khách hàng</Radio>
+                <Checkbox value={"CUSTOMER"}>Khách hàng</Checkbox>
               </Col>
               <Col>
-                <Radio>Nhân viên kinh doanh</Radio>
+                <Checkbox value={"EMPLOYEE"}>Nhân viên kinh doanh</Checkbox>
               </Col>
               <Col>
-                <Radio>Nhân viên kỉ thuật</Radio>
+                <Checkbox value={"TECHNIQUE"}>Nhân viên kỉ thuật</Checkbox>
               </Col>
             </Row>
           </Form.Item>
@@ -77,6 +141,9 @@ const LoginPage = styled.div`
     align-items: center;
     background: #f8f8f8;
     height: 100%;
+    .ant-card {
+      height: ${isMobile ? "100%" : "auto"};
+    }
     .title {
       text-align: center;
       font-size: 16px;
