@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar, Layout, theme } from "antd";
+import { Avatar, Layout, Tag, theme } from "antd";
 import styled from "styled-components";
 import { UserOutlined, BellOutlined } from "@ant-design/icons";
 import useToggle from "hooks/useToggle";

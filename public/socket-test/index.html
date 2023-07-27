@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App</title>
+</head>
+<body>
+  <h1>Phòng Chat</h1>
+  <div>
+    <label for="username">Tên người dùng:</label>
+    <input type="text" id="username" />
+    <label for="room">Tên phòng:</label>
+    <input type="text" id="room" />
+    <button onclick="joinRoom()">Tham gia phòng</button>
+  </div>
+  <div id="chat">
+    <h2>Danh sách thành viên:</h2>
+    <ul id="userList"></ul>
+    <h2>Tin nhắn:</h2>
+    <ul id="messageList"></ul>
+    <div>
+      <input type="text" id="message" />
+      <button onclick="sendMessage()">Gửi</button>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function joinRoom() {
+      const username = document.getElementById('username').value;
+      const roomName = document.getElementById('room').value;
+      socket.emit('joinRoom', roomName, username);
+    }
+
+    socket.on('userJoined', (username) => {
+      const userList = document.getElementById('userList');
+      const listItem = document.createElement('li');
+      listItem.textContent = username;
+      userList.appendChild(listItem);
+    });
+
+    socket.on('roomUsers', (users) => {
+      const userList = document.getElementById('userList');
+      userList.innerHTML = '';
+      users.forEach((user) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = user;
+        userList.appendChild(listItem);
+      });
+    });
+
+    function sendMessage() {
+      const username = document.getElementById('username').value;
+      const roomName = document.getElementById('room').value;
+      const message = document.getElementById('message').value;
+      socket.emit('sendMessage', roomName, username, message);
+    }
+
+    socket.on('message', ({ username, message }) => {
+      const messageList = document.getElementById('messageList');
+      const listItem = document.createElement('li');
+      listItem.textContent = `${username}: ${message}`;
+      messageList.appendChild(listItem);
+    });
+  </script>
+</body>
+</html>

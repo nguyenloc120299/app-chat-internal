@@ -1,4 +1,4 @@
-import { Avatar, Layout } from "antd";
+import { Avatar, Layout, Tag } from "antd";
 import FooterChat from "components/FooterChat";
 import useContentResizer from "hooks/useContentResizer";
 import { isMobile } from "mobile-device-detect";
@@ -24,7 +24,12 @@ const Home = () => {
               <Avatar size={40} />
             </div>
             <div className="content-msg">
-              <div className="auth">Nguyễn Thành Lộc</div>
+              <div className="auth">
+                Nguyễn Thành Lộc
+                <Tag style={{ marginLeft: "10px" }} color="cyan">
+                  Nhân viên kinh doanh
+                </Tag>
+              </div>
               <div>
                 Thư viện, [5/14/2023 7:23 PM] - Khung h4 khi quay về retest ở
                 vùng hổ trợ thì bật lại giảm và hình thành cây nến pinbar -
@@ -47,7 +52,12 @@ const Home = () => {
         <div className="message-sender">
           <div className="main-msg">
             <div className="content-msg">
-              <div className="auth">Nguyễn Thành Lộc</div>
+              <div className="auth">
+                Nguyễn Thành Lộc
+                <Tag style={{ marginLeft: "10px" }} color="warning">
+                  Nhân viên kỉ thuật
+                </Tag>
+              </div>
               <div>111111</div>
               <div className="time">1 giờ trước</div>
             </div>
@@ -59,7 +69,12 @@ const Home = () => {
         <div className="message-sender">
           <div className="main-msg">
             <div className="content-msg">
-              <div className="auth">Nguyễn Thành Lộc</div>
+              <div className="auth">
+                Nguyễn Thành Lộc
+                <Tag style={{ marginLeft: "10px" }} color="pink">
+                  Khách hàng
+                </Tag>
+              </div>
               <div>
                 Thư viện, [5/14/2023 7:23 PM] - Khung h4 khi quay về retest ở
                 vùng hổ trợ thì bật lại giảm và hình thành cây nến pinbar -
