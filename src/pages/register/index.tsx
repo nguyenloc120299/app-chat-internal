@@ -51,7 +51,7 @@ const RegisterForm: FC = () => {
     <LoginPage className="login-page">
       <Card>
         <Form<Register> className="login-page-form" onFinish={onFinished}>
-          <div className="title">Đăng nhập vào để kết nối với ứng dụng</div>
+          <div className="title">Đăng kí tài khoản để có thể kết nối với ứng dụng</div>
           <div className="logo">
             <img src={logo} alt="logo" />
           </div>
