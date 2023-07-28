@@ -1,18 +1,56 @@
-import type { FC } from "react";
-import { Button, Card,  Col, Form, Input, Checkbox, Row } from "antd";
+import { FC, useState } from "react";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Checkbox,
+  Row,
+  Radio,
+  RadioChangeEvent,
+} from "antd";
 import styled from "styled-components";
 import logo from "assets/images/photo_2023-07-26_13-50-12.jpg";
 import { Link } from "react-router-dom";
 import { colors } from "styles/theme";
 import { isMobile } from "mobile-device-detect";
-const Register: FC = () => {
-  const onFinished = async (form: any) => {
-    console.log(form);
+import { Register, ROLES } from "types/global";
+import requestService from "api/request";
+import { register } from "api/user";
+import { useFnLoading, useLoading } from "hooks/useLoading";
+const RegisterForm: FC = () => {
+  const [role, setRole] = useState<ROLES>(ROLES.CUSTOMER);
+  const { onLoading } = useFnLoading();
+  const isLoading = useLoading("REGISTER");
+  console.log("🚀 ~ file: index.tsx:26 ~ isLoading:", isLoading)
+  const onChange = (e: RadioChangeEvent) => {
+    setRole(e.target.value);
+  };
+  const onFinished = async (form: Register) => {
+    onLoading({
+      type: "REGISTER",
+      value: true,
+    });
+    try {
+      await register({
+        name: form.name,
+        password: form.password,
+        phone: form.phone,
+        roleCode: role,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    onLoading({
+      type: "REGISTER",
+      value: false,
+    });
   };
   return (
     <LoginPage className="login-page">
       <Card>
-        <Form className="login-page-form" onFinish={onFinished}>
+        <Form<Register> className="login-page-form" onFinish={onFinished}>
           <div className="title">Đăng nhập vào để kết nối với ứng dụng</div>
           <div className="logo">
             <img src={logo} alt="logo" />
@@ -95,28 +133,19 @@ const Register: FC = () => {
           >
             <Input type="password" placeholder="Nhập lại mật khẩu" />
           </Form.Item>
-          <Form.Item
-            name="roleCode"
-            valuePropName="checked"
-            wrapperCol={{ offset: 0, span: 16 }}
-          >
-            <Row>
-              <Col>
-                <Checkbox value={"CUSTOMER"}>Khách hàng</Checkbox>
-              </Col>
-              <Col>
-                <Checkbox value={"EMPLOYEE"}>Nhân viên kinh doanh</Checkbox>
-              </Col>
-              <Col>
-                <Checkbox value={"TECHNIQUE"}>Nhân viên kỉ thuật</Checkbox>
-              </Col>
-            </Row>
+          <Form.Item>
+            <Radio.Group onChange={onChange} value={role}>
+              <Radio value={ROLES.CUSTOMER}>Nhân viên kinh doanh</Radio>
+              <Radio value={ROLES.EMPLOYEE}>Khách hàng</Radio>
+              <Radio value={ROLES.TECHNIQUE}>Nhân viên kỉ thuật</Radio>
+            </Radio.Group>
           </Form.Item>
           <Form.Item>
             <Button
               htmlType="submit"
               type="primary"
               className="login-page-form_button"
+              loading={isLoading}
             >
               Đăng kí
             </Button>
@@ -133,7 +162,7 @@ const Register: FC = () => {
   );
 };
 
-export default Register;
+export default RegisterForm;
 const LoginPage = styled.div`
   &.login-page {
     display: flex;
