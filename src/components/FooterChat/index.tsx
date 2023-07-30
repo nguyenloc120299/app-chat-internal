@@ -1,18 +1,94 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import {
-  FileImageOutlined,
   LinkOutlined,
   FrownOutlined,
   SendOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Popover, Space } from "antd";
-import TextArea from "antd/es/input/TextArea";
+import { Input, Popover, message as toast } from "antd";
+
 import { colors } from "styles/theme";
-import useToggle from "hooks/useToggle";
 import EmojiPicker from "emoji-picker-react";
-const FooterChat = () => {
-  const [openEmoji, toggleEmoji] = useToggle(false)
+import { useAppSelector } from "store";
+import { SendData, sendMess } from "api/chat";
+import { useFnLoading, useLoading } from "hooks/useLoading";
+import { useSocket } from "hooks/useSocket";
+
+type Messagereciept = {
+  content: string
+  sender: {
+    name: string
+  },
+  room: string,
+  createdAt: string
+}
+
+
+interface Props_Type {
+  messages: Array<any>
+  setMessages: any
+  scrollToBottom: any
+}
+const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
+  const { handleSendMessage } = useSocket()
+  const { conservation } = useAppSelector((state) => state.app) as any
+  const { user } = useAppSelector((state) => state.user) as any
+  const [contentMessage, setContentMessage] = useState('')
+  const { onLoading } = useFnLoading()
+  const isLoading = useLoading("SEND")
+  const senMessageChat = async () => {
+    if (!conservation) return toast.warning("Bạn chưa có nhóm chát nào")
+    onLoading({
+      type: "SEND",
+      value: true
+    })
+    try {
+      setContentMessage('')
+      const sendData = {
+        content: contentMessage,
+        room: conservation?._id,
+        role: user?.roles[0]?.code
+      } as SendData
+
+      const res = await sendMess(sendData)
+      // setMessages([...messages, {
+      //   content: contentMessage,
+      //   sender: {
+      //     name: user?.name,
+      //     _id: user?._id
+      //   },
+      //   createdAt: new Date()
+      // }])
+
+      handleSendMessage({
+        content: contentMessage,
+        createdAt: new Date(),
+        roomId: conservation?._id,
+        role: user?.roles[0]?.code,
+        sender: {
+          name: user?.name,
+          _id: user?._id
+        },
+      })
+      scrollToBottom()
+
+    } catch (error) {
+      console.log(error);
+      setMessages([...messages, {
+        content: "Đã có lỗi xảy ra",
+        sender: {
+          name: user?.name,
+          _id: user?._id
+        },
+        createdAt: new Date()
+      }])
+    }
+    onLoading({
+      type: "SEND",
+      value: false
+    })
+  }
+
   return (
     <FooterChatStyled>
       <div className="main">
@@ -25,16 +101,21 @@ const FooterChat = () => {
             style={{
               height: "50px",
             }}
-
-            placeholder="Nhập nội dung để gửi tin nhắn vào Hổ trợ kỉ thuật..."
+            value={contentMessage}
+            onChange={(e: any) => setContentMessage(e?.target.value)}
+            placeholder={`Nhập nội dung để gửi tin nhắn vào ${conservation?.roomName}...`}
           />
-          <Popover content={<EmojiPicker />} title="EMOJI" trigger={"click"}>
+          <Popover content={<EmojiPicker
+            onEmojiClick={(emojis: any) => setContentMessage(contentMessage + emojis?.emoji)}
+          />} title="EMOJI" trigger={"click"}>
             <FrownOutlined
               style={{ fontSize: "30px", color: "#aaa", cursor: "pointer" }}
             />
           </Popover>
 
           <SendOutlined
+            disabled={isLoading}
+            onClick={senMessageChat}
             style={{
               fontSize: "30px",
               color: colors.mainColor,
@@ -50,7 +131,7 @@ const FooterChat = () => {
 export default FooterChat;
 const FooterChatStyled = styled.div`
   width: 100%;
-  height: 100px;
+  height: 70px;
   position: relative;
   background: #fff;
   padding: 10px;

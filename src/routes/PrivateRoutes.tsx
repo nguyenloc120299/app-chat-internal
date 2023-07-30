@@ -9,8 +9,7 @@ import { useNavigate } from "react-router-dom";
 const PrivateRoute: FC<RouteProps> = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const logged = true;
-  
+  const logged = localStorage.getItem('accessToken');
   return logged ? (props.element as React.ReactElement) : <div>21212</div>;
 };
 

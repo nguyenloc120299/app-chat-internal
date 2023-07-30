@@ -10,18 +10,64 @@ import {
   Row,
   Tag,
   Upload,
+  message,
 } from "antd";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import Search from "antd/es/input/Search";
 import { colors } from "styles/theme";
+import { getUsers } from "api/user";
+import user from "store/user";
+import { CheckboxValueType } from "antd/es/checkbox/Group";
+import { create } from "api/room";
+import { ROLES } from "types/global";
+import { Quer_User } from "types/query";
+import ListUsers from "components/views/ListUsers";
+import { useFnLoading, useLoading } from "hooks/useLoading";
 type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
   handleCancel: any;
+  fetchRooms: any
 };
-const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk }: Props_Type) => {
+
+
+const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms }: Props_Type) => {
+
+  const [members, setMembers] = useState<any>([])
+  const [nameRoom, setNameRoom] = useState('')
+  const { onLoading } = useFnLoading()
+  const isLoading = useLoading("ADD_ROOM")
+  const onChange = (checkedValues: CheckboxValueType[]) => {
+    setMembers(checkedValues)
+  };
+  const onfinish = async () => {
+    try {
+      onLoading({
+        type: "ADD_ROOM",
+        value: true
+      })
+      const res = await create({
+        avatarRoom: '',
+        members,
+        nameRoom
+      })
+      await fetchRooms()
+      message.success("Đã thêm room mới")
+      handleCancel()
+      setMembers([])
+      setNameRoom('')
+    } catch (error) {
+      console.log(error);
+      message.warning("Tạo nhóm không thành công vui lòng thử lại")
+    }
+    onLoading({
+      type: "ADD_ROOM",
+      value: false
+    })
+  }
+
   return (
     <ModalStyled
       title="Tạo nhóm"
@@ -30,12 +76,16 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk }: Props_Type) => {
       onCancel={handleCancel}
       footer={
         <div>
-          <Button onClick={handleCancel}>Hủy</Button>
-          <Button type="primary">Tạo nhóm</Button>
+          <Button onClick={handleCancel} >Hủy</Button>
+          <Button type="primary" htmlType="submit" onClick={onfinish}
+            loading={isLoading}
+            disabled={isLoading}
+          >Tạo nhóm</Button>
         </div>
       }
       centered
     >
+
       <Row gutter={30}>
         <Col span={4}>
           <UploadStyled
@@ -48,45 +98,16 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk }: Props_Type) => {
         </Col>
         <Col span={20}>
           <div className="name-group">
-            <Input placeholder="Nhập tên nhóm" />
+            <Form.Item name="nameRoom" style={{ width: "100%" }}>
+              <Input placeholder="Nhập tên nhóm" value={nameRoom} onChange={(e: any) => setNameRoom(e?.target.value)} />
+            </Form.Item>
           </div>
         </Col>
       </Row>
-      <div style={{ marginBottom: "10px" }}>Thêm bạn vào nhóm</div>
-      <Search placeholder="Nhập tên, số điện thoại" allowClear size="large" />
-      <div style={{ margin: "20px 0", cursor: "pointer" }}>
-        <Tag color={colors.mainColor}>Tất cả</Tag>
-        <Tag>Khách hàng</Tag>
-        <Tag>Nhân viên kinh doanh</Tag>
-        <Tag>Nhân viên kỉ thuật</Tag>
-      </div>
-      <div className="list-user">
-        <div className="user-row">
-          <Radio />
-          <Avatar size={40} />
-          <div className="name">Nguyễn Thành Lộc</div>
-        </div>
-        <div className="user-row">
-          <Radio />
-          <Avatar size={40} />
-          <div className="name">Nguyễn Thành Lộc</div>
-        </div>
-        <div className="user-row">
-          <Radio />
-          <Avatar size={40} />
-          <div className="name">Nguyễn Thành Lộc</div>
-        </div>
-        <div className="user-row">
-          <Radio />
-          <Avatar size={40} />
-          <div className="name">Nguyễn Thành Lộc</div>
-        </div>
-        <div className="user-row">
-          <Radio />
-          <Avatar size={40} />
-          <div className="name">Nguyễn Thành Lộc</div>
-        </div>
-      </div>
+
+      <ListUsers onChange={onChange} />
+
+
     </ModalStyled>
   );
 };
@@ -106,21 +127,7 @@ const ModalStyled = styled(Modal)`
       }
     }
   }
-  .list-user {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    .user-row {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      .name {
-        font-size: 14px;
-        font-weight: 500;
-      }
-    }
-  }
+  
 `;
 
 const UploadStyled = styled(Upload)`

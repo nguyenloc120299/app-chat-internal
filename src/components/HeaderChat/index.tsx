@@ -3,13 +3,15 @@ import React from "react";
 import styled from "styled-components";
 import { ArrowLeftOutlined, MenuOutlined } from "@ant-design/icons";
 import { isMobile } from "mobile-device-detect";
-import { useAppDispatch } from "store";
+import { useAppDispatch, useAppSelector } from "store";
 import { changeConservation } from "store/app";
 import useToggle from "hooks/useToggle";
+import SiderInfo from "Layout/SiderInfo";
 const { Header } = Layout;
 const HeaderChat = () => {
   const token = theme.useToken();
   const [openDrawer, toggleDrawer] = useToggle(false);
+  const { conservation } = useAppSelector((state) => state.app) as any
   const dispatch = useAppDispatch();
   return (
     <HeaderChatStyled
@@ -43,26 +45,30 @@ const HeaderChat = () => {
           )}
 
           <div className="info-group">
-            <div className="name">SP kỉ thuật</div>
-            <div className="member">12 Thành viên</div>
+            <div className="name">{conservation?.nameRoom}</div>
+            <div className="member">{conservation?.members?.length} Thành viên</div>
           </div>
         </div>
-        {isMobile && (
-          <div>
-            <MenuOutlined style={{ fontSize: "20px" }} onClick={toggleDrawer}/>
+
+      </div>
+      {isMobile && (
+        <div>
+          <MenuOutlined style={{ fontSize: "20px" }} onClick={toggleDrawer} />
+          {
+            openDrawer &&
             <Drawer
-              title="Basic Drawer"
+              title="Thành viên nhóm"
               placement="right"
               onClose={toggleDrawer}
               open={openDrawer}
+              size="large"
             >
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
+              <SiderInfo />
             </Drawer>
-          </div>
-        )}
-      </div>
+          }
+
+        </div>
+      )}
     </HeaderChatStyled>
   );
 };

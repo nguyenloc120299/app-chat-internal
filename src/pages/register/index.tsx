@@ -9,43 +9,59 @@ import {
   Row,
   Radio,
   RadioChangeEvent,
+  message,
 } from "antd";
 import styled from "styled-components";
 import logo from "assets/images/photo_2023-07-26_13-50-12.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { colors } from "styles/theme";
 import { isMobile } from "mobile-device-detect";
 import { Register, ROLES } from "types/global";
-import requestService from "api/request";
 import { register } from "api/user";
 import { useFnLoading, useLoading } from "hooks/useLoading";
+import { useForm } from "antd/es/form/Form";
+
 const RegisterForm: FC = () => {
   const [role, setRole] = useState<ROLES>(ROLES.CUSTOMER);
   const { onLoading } = useFnLoading();
   const isLoading = useLoading("REGISTER");
-  console.log("🚀 ~ file: index.tsx:26 ~ isLoading:", isLoading)
+  const [form] = useForm();
+  const navigate = useNavigate()
   const onChange = (e: RadioChangeEvent) => {
     setRole(e.target.value);
   };
-  const onFinished = async (form: Register) => {
+  const validateConfirmPassword = (_: any, value: any) => {
+    const { getFieldValue } = form;
+    const passwordFieldValue = getFieldValue('password');
+
+    if (value && value !== passwordFieldValue) {
+      return Promise.reject(new Error('Mật khẩu không khớp'));
+    }
+
+    return Promise.resolve();
+  };
+  const onFinished = async (formData: Register) => {
     onLoading({
       type: "REGISTER",
       value: true,
     });
     try {
       await register({
-        name: form.name,
-        password: form.password,
-        phone: form.phone,
+        name: formData.name,
+        password: formData.password,
+        phone: formData.phone,
         roleCode: role,
       });
     } catch (error) {
       console.log(error);
     }
+    form.resetFields();
     onLoading({
       type: "REGISTER",
       value: false,
     });
+    message.success("Đăng kí thành công")
+    navigate('/login')
   };
   return (
     <LoginPage className="login-page">
@@ -118,6 +134,7 @@ const RegisterForm: FC = () => {
                 required: true,
                 message: "Vui lòng nhập mật khẩu",
               },
+
             ]}
           >
             <Input type="password" placeholder="Mật khẩu" />
@@ -129,6 +146,7 @@ const RegisterForm: FC = () => {
                 required: true,
                 message: "Vui lòng nhập lại mật khẩu",
               },
+
             ]}
           >
             <Input type="password" placeholder="Nhập lại mật khẩu" />

@@ -18,30 +18,15 @@ import { LayoutStyled } from "styles/theme";
 import HeaderChat from "components/HeaderChat";
 import SiderInfo from "./SiderInfo";
 import { isMobile } from "mobile-device-detect";
+import { useAppSelector } from "store";
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const items: MenuProps["items"] = [
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  AppstoreOutlined,
-  TeamOutlined,
-  ShopOutlined,
-].map((icon, index) => ({
-  key: String(index + 1),
-  icon: React.createElement(icon),
-  label: (
-    <div>
-      <Avatar size={64} icon={<UserOutlined />} />
-    </div>
-  ),
-}));
+
 
 const LayoutMain: React.FC = () => {
   const token = theme.useToken();
+  const { conservation } = useAppSelector((state) => state.app)
   return (
     <LayoutStyled hasSider>
       <SiderMain />
@@ -51,7 +36,7 @@ const LayoutMain: React.FC = () => {
           <Outlet />
         </Content>
       </Layout>
-      {!isMobile && <SiderInfo />}
+      {!isMobile && !!conservation && <SiderInfo />}
     </LayoutStyled>
   );
 };

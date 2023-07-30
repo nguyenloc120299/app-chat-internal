@@ -9,5 +9,9 @@ export interface Register {
   name: string;
   phone: string;
   password: string;
-  roleCode:ROLES
+  roleCode: ROLES
+}
+export interface Login {
+  phone: string,
+  password: string
 }

@@ -5,16 +5,17 @@ import reportWebVitals from "./reportWebVitals";
 import "locale/i18n";
 import { Provider } from "react-redux";
 import store from "store";
+import { DataProvider } from "context/globalSocket";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
+  <Provider store={store}>
+    <DataProvider>
       <App />
-    </Provider>
-  </React.StrictMode>
+    </DataProvider>
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

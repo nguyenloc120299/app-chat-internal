@@ -1,20 +1,64 @@
-import React from "react";
-import { Avatar, Layout, Tag, theme } from "antd";
+import React, { useCallback, useState } from "react";
+import { Avatar, Button, Layout, Modal, Tag, message, theme } from "antd";
 import styled from "styled-components";
-import { UserOutlined, BellOutlined } from "@ant-design/icons";
+import { UserOutlined, BellOutlined, UserAddOutlined } from "@ant-design/icons";
 import useToggle from "hooks/useToggle";
 import ModalProfile from "components/Modals/ModalProfile";
+import { useAppSelector } from "store";
+import ListUsers from "components/views/ListUsers";
+import { CheckboxValueType } from "antd/es/checkbox/Group";
+import { addMembers } from "api/room";
+import { useFnLoading, useLoading } from "hooks/useLoading";
+import { useCallBackApi, useFnCallbackApi } from "hooks/useCallback";
+import { isMobile } from "mobile-device-detect";
 const { Sider, Header, Content } = Layout;
 const SiderInfo = () => {
   const token = theme.useToken();
   const [openModal, toggleOpenModal] = useToggle(false);
+  const { conservation } = useAppSelector((state) => state.app) as any
+  const [openModalAddUser, toggleopenModalAddUser] = useToggle(false);
+  const [members, setMembers] = useState<any>([])
+  const { onLoading } = useFnLoading()
+  const { onCallback } = useFnCallbackApi()
+  const isLoading = useLoading("ADD_MEMBERS")
+  const isCallback = useCallBackApi("ADD_MEMBERS")
+  const onChange = (checkedValues: CheckboxValueType[]) => {
+    setMembers(checkedValues)
+  };
+
+  const handleAddMembers = async () => {
+
+    try {
+      if (!members.length) return message.warning("Vui lòng thêm thành viên")
+      onLoading({
+        type: "ADD_MEMBERS",
+        value: true
+      })
+      await addMembers({
+        members,
+        roomId: conservation?._id
+      })
+      onCallback({
+        type: "ADD_MEMBERS",
+        value: !isCallback
+      })
+      message.success("Đã thêm thành viên mới")
+      toggleopenModalAddUser()
+    } catch (error) {
+      console.log(error);
+    }
+    onLoading({
+      type: "ADD_MEMBERS",
+      value: false
+    })
+  }
   return (
     <SiderInfoStyled
       width={350}
       style={{
         overflow: "auto",
         height: "100%",
-        borderLeft: "1px solid #cccc",
+        borderLeft: isMobile ? "none" : "1px solid #cccc",
         backgroundColor: token.token.colorBgContainer,
       }}
     >
@@ -23,37 +67,61 @@ const SiderInfo = () => {
         handleCancel={toggleOpenModal}
         isShow={true}
       />
-      <Header
-        style={{
-          backgroundColor: token.token.colorBgContainer,
-        }}
-      >
-        <h3>Thành viên nhóm</h3>
-      </Header>
+      {
+        !isMobile &&
+
+        <Header
+          style={{
+            backgroundColor: token.token.colorBgContainer,
+          }}
+        >
+          <h3>Thành viên nhóm</h3>
+        </Header>
+      }
       <Content>
-        <div className="title">Danh sách thành viên (12)</div>
+        <div style={{ display: 'flex', gap: "20px", alignItems: 'center' }}>
+          <div className="title">Danh sách thành viên ({conservation?.members?.length})</div>
+          <UserAddOutlined
+            onClick={toggleopenModalAddUser}
+            style={{
+              color: "#aaa",
+              fontSize: "20px",
+              cursor: "pointer"
+            }} />
+        </div>
         <div className="list-member">
-          <div className="member">
-            <Avatar
-              size={50}
-              icon={<UserOutlined />}
-              onClick={toggleOpenModal}
-            />
-            <div className="name">Nguyễn Thành Lộc</div>
-            <BellOutlined style={{ fontSize: "20px", color: "#666" }} />
-          </div>
-          <div className="member">
-            <Avatar size={50} icon={<UserOutlined />} />
-            <div className="name">Nguyễn Thành Lộc</div>
-            <BellOutlined style={{ fontSize: "20px", color: "#666" }} />
-          </div>
-          <div className="member">
-            <Avatar size={50} icon={<UserOutlined />} />
-            <div className="name">Nguyễn Thành Lộc</div>
-            <BellOutlined style={{ fontSize: "20px", color: "#666" }} />
-          </div>
+          {
+            conservation?.members?.map((item: any, index: number) => (
+              <div className="member" key={index}>
+                <Avatar
+                  size={50}
+                  icon={<UserOutlined />}
+                  onClick={toggleOpenModal}
+                />
+                <div className="name">{item?.name}</div>
+                <BellOutlined style={{ fontSize: "20px", color: "#666" }} />
+              </div>
+            ))
+          }
         </div>
       </Content>
+      <Modal
+        title="Thêm thành viên"
+        open={openModalAddUser}
+        onCancel={toggleopenModalAddUser}
+        footer={
+          <div>
+            <Button onClick={toggleopenModalAddUser}>Hủy</Button>
+            <Button type="primary" loading={isLoading}
+              disabled={isLoading}
+              onClick={handleAddMembers}
+            >Thêm </Button>
+          </div>
+        }
+        centered
+      >
+        <ListUsers onChange={onChange} isNew />
+      </Modal>
     </SiderInfoStyled>
   );
 };

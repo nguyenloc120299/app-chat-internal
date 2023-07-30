@@ -1,15 +1,30 @@
-import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
+import axios, { AxiosResponse, AxiosRequestConfig, AxiosInstance } from "axios";
 
 const baseURL = process.env.REACT_APP_BASE_URL + "api";
 
-const createInstance = () => {
-  return axios.create({
+const createInstance = (): AxiosInstance => {
+  const instance = axios.create({
     baseURL: baseURL,
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
   });
+
+  instance.interceptors.request.use(
+    async (config) => {
+      const accessToken = localStorage.getItem("accessToken");
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+      return config;
+    },
+    (error: any) => {
+      return Promise.reject(error);
+    }
+  );
+
+  return instance;
 };
 
 const requestService = {

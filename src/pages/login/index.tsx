@@ -1,13 +1,33 @@
 import type { FC } from "react";
-import { Button, Card, Form, Input } from "antd";
+import { Button, Card, Form, Input, message } from "antd";
 import styled from "styled-components";
 import logo from "assets/images/photo_2023-07-26_13-50-12.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { colors } from "styles/theme";
 import { isMobile } from "mobile-device-detect";
+import { login } from "api/user";
+import { useFnLoading, useLoading } from "hooks/useLoading";
+import { useDispatch } from "react-redux";
+import { setUser } from "store/user";
 const LoginForm: FC = () => {
+  const isLoading = useLoading("LOGIN")
+  const dispatch = useDispatch()
+  const { onLoading } = useFnLoading();
+  const navigate = useNavigate()
   const onFinished = async (form: any) => {
-    console.log(form);
+    onLoading({ type: "LOGIN", value: true })
+    try {
+      const data = await login(form)
+      if (data.statusCode !== "10000") return message.error("Đăng nhập không thành công vui lòng thử lại")
+      dispatch(setUser(data?.data?.user))
+      localStorage.setItem("accessToken", data?.data?.tokens?.accessToken)
+      localStorage.setItem("refreshToken", data?.data?.tokens?.refreshToken)
+      navigate('/')
+
+    } catch (error) {
+      message.warning("Đăng nhập không thành công vui lòng thử lại!")
+    }
+    onLoading({ type: "LOGIN", value: false })
   };
   return (
     <LoginPage className="login-page">
@@ -39,7 +59,7 @@ const LoginForm: FC = () => {
                 required: true,
                 message: "Vui lòng nhập mật khẩu",
               },
-              
+
             ]}
           >
             <Input type="password" placeholder="Mật khẩu" />
@@ -50,6 +70,7 @@ const LoginForm: FC = () => {
               htmlType="submit"
               type="primary"
               className="login-page-form_button"
+              loading={isLoading}
             >
               Đăng nhập
             </Button>
@@ -76,7 +97,7 @@ const LoginPage = styled.div`
     height: 100%;
     overflow-y: scroll;
     .ant-card {
-      height: ${isMobile ? "100%" : "auto" };
+      height: ${isMobile ? "100%" : "auto"};
     }
     .title {
       text-align: center;
