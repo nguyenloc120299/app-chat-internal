@@ -20,6 +20,8 @@ import { SendData, sendMess, TypeSend, upload } from "api/chat";
 import { RcFile } from "antd/es/upload";
 import axios from "axios";
 import { useSocket } from "hooks/useSocket";
+import { isMobile } from "mobile-device-detect";
+import { uploadFile } from "api/until";
 
 type Props_Type = {
   isModalOpen: boolean;
@@ -46,21 +48,7 @@ const ModalFile = ({
   const isVideoFile = (file: File): boolean => {
     return file?.type.startsWith("video/");
   };
-  const uploadFile = async (file: any) => {
-    try {
-      console.log("file", file);
 
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}api/upload/file`,
-        formData
-      );
-      return res.data;
-    } catch (error) {
-      console.log(error);
-    }
-  };
   const senMessageChat = async () => {
     if (!conservation) return toast.warning("Bạn chưa có nhóm chát nào");
     onLoading({
@@ -82,8 +70,8 @@ const ModalFile = ({
           typeFile: isImageFile(file)
             ? TypeSend.IMAGE
             : isVideoFile(file)
-            ? TypeSend.VIDEO
-            : TypeSend.ORDER,
+              ? TypeSend.VIDEO
+              : TypeSend.ORDER,
         })
       );
       handleCancel();
@@ -99,8 +87,8 @@ const ModalFile = ({
         typeFile: isImageFile(file)
           ? TypeSend.IMAGE
           : isVideoFile(file)
-          ? TypeSend.VIDEO
-          : TypeSend.ORDER,
+            ? TypeSend.VIDEO
+            : TypeSend.ORDER,
       } as SendData;
 
       const res = await sendMess(sendData);
@@ -117,8 +105,8 @@ const ModalFile = ({
         typeFile: isImageFile(file)
           ? TypeSend.IMAGE
           : isVideoFile(file)
-          ? TypeSend.VIDEO
-          : TypeSend.ORDER,
+            ? TypeSend.VIDEO
+            : TypeSend.ORDER,
       });
     } catch (error) {
       console.log(error);
@@ -182,7 +170,12 @@ const ModalFile = ({
             </Col>
             <Col span={2}>
               <Popover
-                content={<EmojiPicker />}
+                content={<EmojiPicker onEmojiClick={(emojis: any) =>
+                  setContentMsg(contentMsg + emojis?.emoji)
+                }
+                  width={isMobile ? "100%" : 450}
+                  height={isMobile ? 350 : "450px"}
+                />}
                 title="EMOJI"
                 trigger={"click"}
               >

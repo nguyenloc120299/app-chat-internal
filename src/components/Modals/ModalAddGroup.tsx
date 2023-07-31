@@ -15,16 +15,13 @@ import {
 import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-import Search from "antd/es/input/Search";
-import { colors } from "styles/theme";
-import { getUsers } from "api/user";
-import user from "store/user";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { create } from "api/room";
-import { ROLES } from "types/global";
-import { Quer_User } from "types/query";
+
 import ListUsers from "components/views/ListUsers";
 import { useFnLoading, useLoading } from "hooks/useLoading";
+import { FileUploader } from "react-drag-drop-files";
+import { uploadFile } from "api/until";
 type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
@@ -34,7 +31,7 @@ type Props_Type = {
 
 
 const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms }: Props_Type) => {
-
+  const [avatarRoom, setAvatarRoom] = useState<any>(null)
   const [members, setMembers] = useState<any>([])
   const [nameRoom, setNameRoom] = useState('')
   const { onLoading } = useFnLoading()
@@ -42,14 +39,27 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms }: Prop
   const onChange = (checkedValues: CheckboxValueType[]) => {
     setMembers(checkedValues)
   };
+  const handleChange = (file: any) => {
+    if (!file) {
+      return message.warning("Bạn chưa chọn file");
+    }
+    const maxSizeInBytes = 5 * 1024 * 1024;
+    if (file.size > maxSizeInBytes) {
+      return message.warning("Vui long chọn file nhở hơn 5MP");
+    }
+    setAvatarRoom(file);
+  }
   const onfinish = async () => {
     try {
       onLoading({
         type: "ADD_ROOM",
         value: true
       })
+      const fileUrl = await uploadFile(avatarRoom);
+      if (!fileUrl)
+        return message.warning("Có lỗi xảy ra vui lòng thử lại sao");
       const res = await create({
-        avatarRoom: '',
+        avatarRoom: fileUrl?.url,
         members,
         nameRoom
       })
@@ -88,13 +98,15 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms }: Prop
 
       <Row gutter={30}>
         <Col span={4}>
-          <UploadStyled
-            name="avatar"
-            listType="picture-card"
-            showUploadList={false}
-          >
-            <PlusOutlined />
-          </UploadStyled>
+          <FileUploader handleChange={handleChange}>
+            <div className="avatar">
+              {
+                avatarRoom ? <img src={URL.createObjectURL(avatarRoom)} />
+                  :
+                  <PlusOutlined />
+              }
+            </div>
+          </FileUploader>
         </Col>
         <Col span={20}>
           <div className="name-group">
@@ -125,6 +137,22 @@ const ModalStyled = styled(Modal)`
       &:focus {
         box-shadow: none;
       }
+    }
+  }
+  .avatar{
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-style: dashed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    img{
+      width: 100%;
+      height: 100%;
     }
   }
   

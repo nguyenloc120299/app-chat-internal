@@ -16,6 +16,8 @@ import { useSocket } from "hooks/useSocket";
 import TagsRole from "components/views/TagsRole";
 import { resetMessages, setMessages, updateMessages } from "store/chat";
 import Messages from "components/messages/Messages";
+import LightBoxFile from "components/Modals/LightBoxFile";
+import useToggle from "hooks/useToggle";
 moment.locale("vi");
 
 const Home = () => {
@@ -25,7 +27,8 @@ const Home = () => {
   const dispatch = useAppDispatch();
   const { socket } = context;
   const refDisplay = useRef<any>();
-  // const [messages, setMessages] = useState<any>()
+  const [lightBox, toggleLightBox] = useToggle(false)
+  const [fileSelectm, setFileSelect] = useState<any>(null)
   const { conservation } = useAppSelector((state) => state.app) as any;
   const { user } = useAppSelector((state) => state.user) as any;
   const { onLoading } = useFnLoading();
@@ -34,7 +37,7 @@ const Home = () => {
   useEffect(() => {
     if (socket) {
       socket.on("messageClient", (newPost: MESSAGE) => {
-        if (newPost &&  user && newPost.sender._id !== user?._id)
+        if (newPost && user && newPost.sender._id !== user?._id)
           dispatch(updateMessages(newPost));
       });
     }
@@ -43,7 +46,7 @@ const Home = () => {
         socket.off("messageClient");
       }
     };
-  }, [socket,user]);
+  }, [socket, user]);
 
   useEffect(() => {
     if (socket)
@@ -64,6 +67,15 @@ const Home = () => {
     };
   }, [socket, conservation, user]);
 
+  const handleLightBox = (item: any) => {
+    setFileSelect(item)
+    toggleLightBox()
+  }
+
+  const handleCloseLightBox = () => {
+    setFileSelect(null)
+    toggleLightBox()
+  }
   const fetchAllMessages = async (conservation: any) => {
     dispatch(resetMessages([]));
     try {
@@ -94,79 +106,16 @@ const Home = () => {
     scrollToBottom();
   }, [conservation, messages]);
 
-  // const getMessage = (message?: any, user?: any) => {
-  //   if (message?.sender?._id === user?._id)
-  //     return (
-  //       <div className="message-sender">
-  //         <div className="main-msg">
-  //           <div className="content-msg">
-  //             <div className="auth">
-  //               {message?.sender?.name}
-  //               <TagsRole role={message?.role} />
-  //             </div>
-  //             <div> {message?.content}</div>
-  //             {message?.file && (
-  //               <div className="file-content">
-  //                 {message?.typeFile === TypeSend.IMAGE && (
-  //                   <img src={message?.file} alt="file" />
-  //                 )}
-  //                 {message?.typeFile === TypeSend.VIDEO && (
-  //                   <div className="video-render">
-  //                     <video src={message?.file} autoPlay muted loop />
-  //                     <div className="icon-muted">
-  //                       <AudioMutedOutlined />
-  //                     </div>
-  //                   </div>
-  //                 )}
-  //               </div>
-  //             )}
-  //             <div className="time">
-  //               {moment(new Date(message?.createdAt)).fromNow()}
-  //             </div>
-  //           </div>
-  //           <div>
-  //             <Avatar size={40} />
-  //           </div>
-  //         </div>
-  //       </div>
-  //     );
-  //   else
-  //     return (
-  //       <div className="message-recipient">
-  //         <div className="main-msg">
-  //           <div>
-  //             <Avatar size={40} />
-  //           </div>
-  //           <div className="content-msg">
-  //             <div className="auth">
-  //               {message?.sender?.name}
-  //               <TagsRole role={message?.role} />
-  //             </div>
-  //             <div>{message?.content}</div>
-  //             {message?.file && (
-  //               <div className="file-content">
-  //                 {message?.typeFile === TypeSend.IMAGE && (
-  //                   <img data-src={message?.file} alt="file" loading="lazy" />
-  //                 )}
-  //                 {message?.typeFile === TypeSend.VIDEO && (
-  //                   <video src={message?.file} autoPlay muted loop  />
-  //                 )}
-  //               </div>
-  //             )}
-  //             <div className="time">
-  //               {moment(new Date(message?.createdAt)).fromNow()}
-  //             </div>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     );
-  // };
   return (
     <HomeStyled>
+      {
+        lightBox &&
+        <LightBoxFile fileSelect={fileSelectm} lightBox={lightBox} handleCloseLightBox={handleCloseLightBox} />
+      }
       <div className="content" ref={refDisplay}>
         {user && messages?.length ? (
-          messages?.map((item: any) => 
-          <Messages message={item}/>
+          messages?.map((item: any) =>
+            <Messages message={item} handleLightBox={handleLightBox} />
           )
         ) : (
           <div className="text-intro">
@@ -199,11 +148,15 @@ const HomeStyled: any = styled.div`
     position: relative;
     .file-content {
       margin-top: 10px;
+      cursor: pointer;
       img,
       video {
         max-width: 350px;
         object-fit: cover;
         border-radius: 10px;
+        @media(max-width:678px){
+          width: 100%;
+        }
       }
       .video-render {
         position: relative;
@@ -244,7 +197,7 @@ const HomeStyled: any = styled.div`
       align-items: flex-start;
       padding: 0px;
       gap: 4px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       margin-right: ${isMobile ? "10px" : "150px"};
 
       .main-msg {
@@ -254,7 +207,7 @@ const HomeStyled: any = styled.div`
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          padding: 15px;
+          padding: 10px;
           background: #f0ebeb;
           border-radius: 8px;
           white-space: pre-line;
@@ -279,7 +232,7 @@ const HomeStyled: any = styled.div`
       align-items: flex-end;
       padding: 0px;
       gap: 10px;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
       margin-left: ${isMobile ? "10px" : "150px"};
 
       .main-msg {
@@ -289,7 +242,7 @@ const HomeStyled: any = styled.div`
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          padding: 15px;
+          padding: 10px;
           background: ${colors.mainColor};
           color: #f0ebeb;
           border-radius: 8px;

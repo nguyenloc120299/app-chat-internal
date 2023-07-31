@@ -51,6 +51,8 @@ const RegisterForm: FC = () => {
         password: formData.password,
         phone: formData.phone,
         roleCode: role,
+        linkFaceBook: formData.linkFaceBook,
+        linkTelegram: formData.linkTelegram
       });
     } catch (error) {
       console.log(error);

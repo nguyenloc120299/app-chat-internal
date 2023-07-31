@@ -9,7 +9,9 @@ export interface Register {
   name: string;
   phone: string;
   password: string;
-  roleCode: ROLES
+  roleCode: ROLES;
+  linkFaceBook: string,
+  linkTelegram: string
 }
 export interface Login {
   phone: string,

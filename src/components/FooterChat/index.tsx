@@ -11,6 +11,7 @@ import { useFnLoading, useLoading } from "hooks/useLoading";
 import { useSocket } from "hooks/useSocket";
 import FileUpload from "./FileUpload";
 import { updateMessages } from "store/chat";
+import { isMobile } from "mobile-device-detect";
 
 type Messagereciept = {
   content: string;
@@ -36,6 +37,7 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
   const dispatch = useAppDispatch();
   const senMessageChat = async () => {
     if (!conservation) return toast.warning("Bạn chưa có nhóm chát nào");
+    if (!contentMessage.length) return
     onLoading({
       type: "SEND",
       value: true,
@@ -110,6 +112,7 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
                 onEmojiClick={(emojis: any) =>
                   setContentMessage(contentMessage + emojis?.emoji)
                 }
+                width={isMobile ? "100%" : 450}
               />
             }
             title="EMOJI"

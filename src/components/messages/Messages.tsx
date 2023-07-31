@@ -9,8 +9,9 @@ import useToggle from "hooks/useToggle";
 import LightBoxFile from "components/Modals/LightBoxFile";
 type Props_type = {
   message: any;
+  handleLightBox: any
 };
-const Messages = ({ message }: Props_type) => {
+const Messages = ({ message, handleLightBox }: Props_type) => {
   const { conservation } = useAppSelector((state) => state.app) as any;
   const { user } = useAppSelector((state) => state.user) as any;
   const [modalFile, toggleModalFile] = useToggle(false);
@@ -27,14 +28,17 @@ const Messages = ({ message }: Props_type) => {
               </div>
               <div> {message?.content}</div>
               {message?.file && (
-                <div className="file-content">
+                <div className="file-content" onClick={() => handleLightBox({
+                  file: message?.file,
+                  typeFile: message?.typeFile
+                })}>
                   {message?.typeFile === TypeSend.IMAGE && (
                     <img src={message?.file} alt="file" />
                   )}
                   {message?.typeFile === TypeSend.VIDEO && (
-                    <div className="video-render">
+                    <div className="video-render" >
                       <video src={message?.file} autoPlay muted loop />
-                      <div className="icon-muted">
+                      <div className="icon-muted" >
                         <AudioMutedOutlined />
                       </div>
                     </div>
@@ -63,12 +67,20 @@ const Messages = ({ message }: Props_type) => {
               </div>
               <div>{message?.content}</div>
               {message?.file && (
-                <div className="file-content">
+                <div className="file-content" onClick={() => handleLightBox({
+                  file: message?.file,
+                  typeFile: message?.typeFile
+                })}>
                   {message?.typeFile === TypeSend.IMAGE && (
-                    <img data-src={message?.file} alt="file" loading="lazy" />
+                    <img src={message?.file} alt="file" />
                   )}
                   {message?.typeFile === TypeSend.VIDEO && (
-                    <video src={message?.file} autoPlay muted loop />
+                    <div className="video-render">
+                      <video src={message?.file} autoPlay muted loop />
+                      <div className="icon-muted">
+                        <AudioMutedOutlined />
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
@@ -79,6 +91,7 @@ const Messages = ({ message }: Props_type) => {
           </div>
         </div>
       )}
+
     </>
   );
 };

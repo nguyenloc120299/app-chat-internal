@@ -2,14 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Avatar, Badge, Dropdown, Layout, Menu, MenuProps, theme } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  CloudOutlined,
-  ShopOutlined,
-  TeamOutlined,
-  UploadOutlined,
   UserOutlined,
-  VideoCameraOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
@@ -96,6 +89,7 @@ const SiderMain = () => {
     try {
       await logout();
       navigate("/login");
+      localStorage.clear()
     } catch (error) {
       console.log(error);
     }
@@ -163,7 +157,7 @@ const SiderMain = () => {
         <div className="content">
           <div>
             <Badge count={totalUnreadMess(item?.unReadMessage)}>
-              <Avatar size={60} icon={<UserOutlined />} />
+              <Avatar size={60} icon={item?.avatarRoom ? <img src={item?.avatarRoom} /> : <UserOutlined />} />
             </Badge>
           </div>
 
@@ -213,6 +207,7 @@ const SiderMain = () => {
       <ModalProfile
         isModalOpen={openModalProfile}
         handleCancel={toggleOpenModalProfile}
+        user={user}
       />
       <Header
         style={{
@@ -245,7 +240,7 @@ const SiderMain = () => {
             mode="inline"
             defaultSelectedKeys={[
               JSON.parse(localStorage.getItem("conservation") as any)?._id ||
-                "",
+              "",
             ]}
             items={items}
           />
