@@ -10,13 +10,13 @@ import { colors } from "styles/theme";
 import moment from 'moment'
 import 'moment/locale/vi';  // without this line it didn't work
 import { useFnLoading, useLoading } from "hooks/useLoading";
-import { LoadingOutlined } from '@ant-design/icons';
+
 import { DataContext } from "context/globalSocket";
 import { MESSAGE } from "types/joinRoom";
 import { useSocket } from "hooks/useSocket";
 import TagsRole from "components/views/TagsRole";
-moment.locale('es')
-const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
+moment.locale('vi')
+
 const Home = () => {
   const { handleLeaveRoom } = useSocket()
   const context = useContext(DataContext)
@@ -58,7 +58,7 @@ const Home = () => {
   }, [socket, conservation, user])
 
   const fetchAllMessages = async (conservation: any) => {
-
+    setMessages([])
     try {
       onLoading({ type: "MESSAGES", value: true })
       const res = await getMessages(conservation._id, "1", "50")
@@ -85,7 +85,7 @@ const Home = () => {
     scrollToBottom();
   }, [conservation, messages]);
 
-  const getMessage = (message?: any) => {
+  const getMessage = (message?: any,user?: any) => {
     if (message?.sender?._id === user?._id) return (
       <div className="message-sender">
         <div className="main-msg">
@@ -128,8 +128,8 @@ const Home = () => {
     <HomeStyled>
       <div className="content" ref={refDisplay}>
         {
-          messages?.length ? messages?.map((item: any) => (
-            getMessage(item)
+        user &&  messages?.length ? messages?.map((item: any) => (
+            getMessage(item,user)
           ))
             :
             <div className="text-intro">
