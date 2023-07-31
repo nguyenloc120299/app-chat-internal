@@ -3,13 +3,15 @@ import { useDispatch, useSelector } from 'react-redux'
 import type { TypedUseSelectorHook } from 'react-redux'
 import appReducer from "./app";
 import userReducer from './user'
+import chatReducer from './chat'
 
 const store = configureStore({
   reducer: {
     app: appReducer,
-    user: userReducer
+    user: userReducer,
+    chat: chatReducer,
   },
-})
+});
 
 export type AppDispatch = typeof store.dispatch
 export type AppState = ReturnType<typeof store.getState>

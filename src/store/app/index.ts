@@ -4,7 +4,8 @@ const initialState = {
   conservation: false,
   socket: null,
   loading: {},
-  isCallBack: {}
+  isCallBack: {},
+  
 };
 
 const appSlice = createSlice({

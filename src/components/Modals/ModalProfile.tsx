@@ -1,6 +1,5 @@
 import { Avatar, Button, Form, Input, Modal, Tag } from "antd";
-import React from "react";
-import { Link } from "react-router-dom";
+
 import styled from "styled-components";
 type Props_Type = {
   isModalOpen: boolean;

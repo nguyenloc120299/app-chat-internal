@@ -1,38 +1,41 @@
 import { Avatar, Layout, Spin, Tag } from "antd";
-import { getMessages } from "api/chat";
+import { getMessages, TypeSend } from "api/chat";
 import FooterChat from "components/FooterChat";
-import useContentResizer from "hooks/useContentResizer";
 import { isMobile } from "mobile-device-detect";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useAppSelector } from "store";
+import { useAppDispatch, useAppSelector } from "store";
 import styled from "styled-components";
 import { colors } from "styles/theme";
-import moment from 'moment'
-import 'moment/locale/vi';  // without this line it didn't work
+import moment from "moment";
+import "moment/locale/vi"; // without this line it didn't work
 import { useFnLoading, useLoading } from "hooks/useLoading";
-
+import { AudioMutedOutlined } from "@ant-design/icons";
 import { DataContext } from "context/globalSocket";
 import { MESSAGE } from "types/joinRoom";
 import { useSocket } from "hooks/useSocket";
 import TagsRole from "components/views/TagsRole";
-moment.locale('vi')
+import { resetMessages, setMessages, updateMessages } from "store/chat";
+import Messages from "components/messages/Messages";
+moment.locale("vi");
 
 const Home = () => {
-  const { handleLeaveRoom } = useSocket()
-  const context = useContext(DataContext)
-  const { socket } = context
+  const { handleLeaveRoom } = useSocket();
+  const context = useContext(DataContext);
+  const { messages } = useAppSelector((state) => state.chat) as any;
+  const dispatch = useAppDispatch();
+  const { socket } = context;
   const refDisplay = useRef<any>();
-  const [messages, setMessages] = useState<any>()
-  const { conservation } = useAppSelector((state) => state.app) as any
-  const { user } = useAppSelector((state) => state.user) as any
-  const { onLoading } = useFnLoading()
-  const isLoading = useLoading("MESSAGES")
+  // const [messages, setMessages] = useState<any>()
+  const { conservation } = useAppSelector((state) => state.app) as any;
+  const { user } = useAppSelector((state) => state.user) as any;
+  const { onLoading } = useFnLoading();
+  const isLoading = useLoading("MESSAGES");
 
   useEffect(() => {
     if (socket) {
       socket.on("messageClient", (newPost: MESSAGE) => {
-        if (newPost)
-          setMessages((prevMessages: any) => [...prevMessages, newPost]);
+        if (newPost &&  user && newPost.sender._id !== user?._id)
+          dispatch(updateMessages(newPost));
       });
     }
     return () => {
@@ -40,43 +43,49 @@ const Home = () => {
         socket.off("messageClient");
       }
     };
-  }, [socket]);
+  }, [socket,user]);
 
   useEffect(() => {
     if (socket)
-      window.addEventListener("beforeunload", () => handleLeaveRoom({
-        roomId: conservation?._id,
-        userId: user?._id
-      }));
+      window.addEventListener("beforeunload", () =>
+        handleLeaveRoom({
+          roomId: conservation?._id,
+          userId: user?._id,
+        })
+      );
     return () => {
       if (socket)
-        window.addEventListener("beforeunload", () => handleLeaveRoom({
-          roomId: conservation?._id,
-          userId: user?._id
-        }));
-    }
-  }, [socket, conservation, user])
+        window.addEventListener("beforeunload", () =>
+          handleLeaveRoom({
+            roomId: conservation?._id,
+            userId: user?._id,
+          })
+        );
+    };
+  }, [socket, conservation, user]);
 
   const fetchAllMessages = async (conservation: any) => {
-    setMessages([])
+    dispatch(resetMessages([]));
     try {
-      onLoading({ type: "MESSAGES", value: true })
-      const res = await getMessages(conservation._id, "1", "50")
-      if (res && res?.data) setMessages(res?.data)
+      onLoading({ type: "MESSAGES", value: true });
+      const res = await getMessages(conservation._id, "1", "50");
+      if (res && res?.data) dispatch(setMessages(res?.data));
     } catch (error) {
       console.log(error);
     }
-    onLoading({ type: "MESSAGES", value: false })
-  }
+    onLoading({ type: "MESSAGES", value: false });
+  };
   const fectAllCondition = async () => {
-    if (localStorage.getItem('conservation'))
-      return await fetchAllMessages(JSON.parse(localStorage.getItem('conservation') as any))
-    if (conservation)
-      return await fetchAllMessages(conservation)
-  }
+    if (localStorage.getItem("conservation"))
+      return await fetchAllMessages(
+        JSON.parse(localStorage.getItem("conservation") as any)
+      );
+    if (conservation) return await fetchAllMessages(conservation);
+  };
   useEffect(() => {
-    fectAllCondition()
-  }, [conservation])
+    fectAllCondition();
+  }, [conservation]);
+
   const scrollToBottom = () => {
     const chatDisplay = refDisplay?.current;
     chatDisplay.scrollTop = chatDisplay.scrollHeight;
@@ -85,66 +94,92 @@ const Home = () => {
     scrollToBottom();
   }, [conservation, messages]);
 
-  const getMessage = (message?: any,user?: any) => {
-    if (message?.sender?._id === user?._id) return (
-      <div className="message-sender">
-        <div className="main-msg">
-          <div className="content-msg">
-            <div className="auth">
-              {message?.sender?.name}
-              <TagsRole role={message?.role} />
-            </div>
-            <div>   {message?.content}</div>
-            <div className="time">{moment(new Date(message?.createdAt)).fromNow()}</div>
-          </div>
-          <div>
-            <Avatar size={40} />
-          </div>
-        </div>
-      </div>
-    )
-    else
-      return (
-        <div className="message-recipient">
-          <div className="main-msg">
-            <div>
-              <Avatar size={40} />
-            </div>
-            <div className="content-msg">
-              <div className="auth">
-                {message?.sender?.name}
-                <TagsRole role={message?.role} />
-              </div>
-              <div>
-                {message?.content}
-              </div>
-              <div className="time">{moment(new Date(message?.createdAt)).fromNow()}</div>
-            </div>
-          </div>
-        </div>
-      )
-  }
+  // const getMessage = (message?: any, user?: any) => {
+  //   if (message?.sender?._id === user?._id)
+  //     return (
+  //       <div className="message-sender">
+  //         <div className="main-msg">
+  //           <div className="content-msg">
+  //             <div className="auth">
+  //               {message?.sender?.name}
+  //               <TagsRole role={message?.role} />
+  //             </div>
+  //             <div> {message?.content}</div>
+  //             {message?.file && (
+  //               <div className="file-content">
+  //                 {message?.typeFile === TypeSend.IMAGE && (
+  //                   <img src={message?.file} alt="file" />
+  //                 )}
+  //                 {message?.typeFile === TypeSend.VIDEO && (
+  //                   <div className="video-render">
+  //                     <video src={message?.file} autoPlay muted loop />
+  //                     <div className="icon-muted">
+  //                       <AudioMutedOutlined />
+  //                     </div>
+  //                   </div>
+  //                 )}
+  //               </div>
+  //             )}
+  //             <div className="time">
+  //               {moment(new Date(message?.createdAt)).fromNow()}
+  //             </div>
+  //           </div>
+  //           <div>
+  //             <Avatar size={40} />
+  //           </div>
+  //         </div>
+  //       </div>
+  //     );
+  //   else
+  //     return (
+  //       <div className="message-recipient">
+  //         <div className="main-msg">
+  //           <div>
+  //             <Avatar size={40} />
+  //           </div>
+  //           <div className="content-msg">
+  //             <div className="auth">
+  //               {message?.sender?.name}
+  //               <TagsRole role={message?.role} />
+  //             </div>
+  //             <div>{message?.content}</div>
+  //             {message?.file && (
+  //               <div className="file-content">
+  //                 {message?.typeFile === TypeSend.IMAGE && (
+  //                   <img data-src={message?.file} alt="file" loading="lazy" />
+  //                 )}
+  //                 {message?.typeFile === TypeSend.VIDEO && (
+  //                   <video src={message?.file} autoPlay muted loop  />
+  //                 )}
+  //               </div>
+  //             )}
+  //             <div className="time">
+  //               {moment(new Date(message?.createdAt)).fromNow()}
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     );
+  // };
   return (
     <HomeStyled>
       <div className="content" ref={refDisplay}>
-        {
-        user &&  messages?.length ? messages?.map((item: any) => (
-            getMessage(item,user)
-          ))
-            :
-            <div className="text-intro">
-              Gửi tin nhắn để có thể trò chuyện 🤭🤭
-            </div>
-        }
+        {user && messages?.length ? (
+          messages?.map((item: any) => 
+          <Messages message={item}/>
+          )
+        ) : (
+          <div className="text-intro">
+            Gửi tin nhắn để có thể trò chuyện 🤭🤭
+          </div>
+        )}
       </div>
       <FooterChat
         messages={messages}
         setMessages={setMessages}
         scrollToBottom={scrollToBottom}
       />
-
-
-    </HomeStyled >
+    </HomeStyled>
   );
 };
 
@@ -155,35 +190,54 @@ const HomeStyled: any = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  
+
   .content {
     flex: 1;
     background: #cccc;
     padding: 20px;
     overflow-y: scroll;
     position: relative;
-    .text-intro{
+    .file-content {
+      margin-top: 10px;
+      img,
+      video {
+        max-width: 350px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .video-render {
+        position: relative;
+        .icon-muted {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          font-size: 16px;
+          cursor: pointer;
+        }
+      }
+    }
+    .text-intro {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%,-50%);
+      transform: translate(-50%, -50%);
       font-weight: 500;
     }
     &::-webkit-scrollbar {
       display: none;
     }
-    .loading{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    background: rgba(0,0,0,.1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-  }
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
     .message-recipient {
       display: flex;
       flex-direction: column;
@@ -227,7 +281,7 @@ const HomeStyled: any = styled.div`
       gap: 10px;
       margin-bottom: 5px;
       margin-left: ${isMobile ? "10px" : "150px"};
-    
+
       .main-msg {
         display: flex;
         gap: 5px;

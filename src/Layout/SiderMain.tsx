@@ -168,20 +168,23 @@ const SiderMain = () => {
           </div>
 
           <div className="right">
-            <div className="name">{item?.nameRoom}</div>
+            <div>
+              <div className="name-room">
+                <div className="name">{item?.nameRoom}</div>
+                {item?.lastMessage && (
+                  <div className="time-now">
+                    {moment(new Date(item?.lastMessage?.createdAt)).fromNow()}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {item?.lastMessage && (
               <div className="msg">
                 {item?.lastMessage?.sender?.name}: {item?.lastMessage?.content}
               </div>
             )}
           </div>
-        </div>
-        <div>
-          {item?.lastMessage && (
-            <div className="time-now">
-              {moment(new Date(item?.lastMessage?.createdAt)).fromNow()}
-            </div>
-          )}
         </div>
       </div>
     ),
@@ -284,10 +287,10 @@ const MenuStyled = styled(Menu)`
     line-height: 25px;
   }
   .conservation {
-    display: flex;
-    justify-content: space-between;
+    /* display: flex;
+   justify-content: space-between;
     gap: 10px;
-    align-items: flex-start;
+    align-items: flex-start; */
     .ant-badge-count {
       top: 15px;
       right: 5px;
@@ -299,9 +302,14 @@ const MenuStyled = styled(Menu)`
       .right {
         display: flex;
         flex-direction: column;
+        width: 100%;
         .name {
           font-weight: 600;
           font-size: 16px;
+        }
+        .name-room {
+          display: flex;
+          justify-content: space-between;
         }
         .msg {
           font-weight: 400;

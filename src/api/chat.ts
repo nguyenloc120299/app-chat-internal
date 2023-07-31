@@ -1,16 +1,37 @@
-import requestService from "./request"
+import requestService from "./request";
+
+export enum TypeSend {
+  VIDEO = "VIDEO",
+  IMAGE = "IMAGE",
+  ORDER = "ORDER",
+}
 export type SendData = {
-    content: string,
-    room: string
-}
-export const getMessages = async (roomId: string, page: string, limit: string) => {
-    const res = await requestService.get(`/message/all?roomId=${roomId}&page=${page}&limit=${limit}`)
-    return res.data
-}
+  content: string;
+  room: string;
+  file?: string;
+  typeFile?: TypeSend;
+};
+export const getMessages = async (
+  roomId: string,
+  page: string,
+  limit: string
+) => {
+  const res = await requestService.get(
+    `/message/all?roomId=${roomId}&page=${page}&limit=${limit}`
+  );
+  return res.data;
+};
 
 export const sendMess = async (sendData: SendData) => {
-    const res = await requestService.post('/message/send', {
-        data: sendData
-    })
-    return res.data
-}
+  const res = await requestService.post("/message/send", {
+    data: sendData,
+  });
+  return res.data;
+};
+
+export const upload = async (formData: any) => {
+  const res = await requestService.post("/upload/file", {
+    data: formData,
+  });
+  return res.data;
+};
