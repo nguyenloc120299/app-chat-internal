@@ -26,20 +26,22 @@ import { useSocket } from "hooks/useSocket";
 import { DataContext } from "context/globalSocket";
 import { ROLES } from "types/global";
 import { useCallBackApi } from "hooks/useCallback";
+import { logout } from "api/user";
+import { useNavigate } from "react-router-dom";
 const { Sider } = Layout;
 const SiderMain = () => {
   const token = theme.useToken();
-  const context = useContext(DataContext)
-  const { socket } = context
-  const { handleJoinRoom, handleEscapeRoom } = useSocket()
+  const context = useContext(DataContext);
+  const { socket } = context;
+  const { handleJoinRoom, handleEscapeRoom } = useSocket();
   const [openModal, toggleOpenModal] = useToggle(false);
   const [openModalProfile, toggleOpenModalProfile] = useToggle(false);
   const { conservation } = useAppSelector((state) => state.app);
-  const { user } = useAppSelector((state) => state.user) as any
+  const { user } = useAppSelector((state) => state.user) as any;
   const dispatch = useAppDispatch();
-  const isCallback = useCallBackApi("ADD_MEMBERS")
-  const [rooms, setRooms] = useState<any>([])
-
+  const isCallback = useCallBackApi("ADD_MEMBERS");
+  const [rooms, setRooms] = useState<any>([]);
+  const navigate = useNavigate();
   useEffect(() => {
     if (socket) {
       socket.on("conservation", (newPost: any) => {
@@ -53,13 +55,14 @@ const SiderMain = () => {
               }
             });
 
-
             return {
-              ...room, unReadMessage: newUnread, lastMessage: {
+              ...room,
+              unReadMessage: newUnread,
+              lastMessage: {
                 content: newPost?.content,
                 createdAt: newPost.createdAt,
-                sender: newPost.sender
-              }
+                sender: newPost.sender,
+              },
             };
           }
           return room;
@@ -74,7 +77,6 @@ const SiderMain = () => {
 
         setRooms(updatedRooms);
       });
-
     }
     return () => {
       if (socket) {
@@ -84,18 +86,28 @@ const SiderMain = () => {
   }, [socket, user, rooms]);
 
   const totalUnreadMess = (unReadMessage: any) => {
-    const totalUread = unReadMessage.find((item: any) => user?._id === item.user)
-    if (totalUread) return totalUread?.total
-    return 0
-  }
+    const totalUread = unReadMessage.find(
+      (item: any) => user?._id === item.user
+    );
+    if (totalUread) return totalUread?.total;
+    return 0;
+  };
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleChangeConservation = async (item: any) => {
-    dispatch(changeConservation(item))
-    localStorage.setItem('conservation', JSON.stringify(item))
+    dispatch(changeConservation(item));
+    localStorage.setItem("conservation", JSON.stringify(item));
     try {
       handleJoinRoom({
         roomId: item?._id,
-        userId: user?._id
-      })
+        userId: user?._id,
+      });
       const updatedRooms = rooms.map((room: any) => {
         if (room._id === item?._id) {
           const newUnread = room.unReadMessage.map((unread: any) => {
@@ -108,41 +120,46 @@ const SiderMain = () => {
         }
         return room;
       });
-      setRooms(updatedRooms)
+      setRooms(updatedRooms);
 
-      await readMess({ room: item._id })
-
+      await readMess({ room: item._id });
     } catch (error) {
       console.log(error);
-
     }
-  }
+  };
   const fetchRooms = async () => {
     try {
-      const data = await getAll(user?.roles[0]?.code)
-      setRooms(data?.data)
+      const data = await getAll(user?.roles[0]?.code);
+      setRooms(data?.data);
     } catch (error) {
       console.log(error);
     }
-  }
+  };
   useEffect(() => {
     if (user) {
-      fetchRooms()
-      if (localStorage.getItem('conservation') && socket) {
+      fetchRooms();
+      if (localStorage.getItem("conservation") && socket) {
         handleJoinRoom({
-          roomId: JSON.parse(localStorage.getItem('conservation') as any)?._id,
-          userId: user?._id
-        })
+          roomId: JSON.parse(localStorage.getItem("conservation") as any)?._id,
+          userId: user?._id,
+        });
       }
       !isMobile &&
-        dispatch(changeConservation(JSON.parse(localStorage.getItem('conservation') as any)))
+        dispatch(
+          changeConservation(
+            JSON.parse(localStorage.getItem("conservation") as any)
+          )
+        );
     }
-  }, [user, socket, isCallback])
+  }, [user, socket, isCallback]);
 
   const items: MenuProps["items"] = rooms.map((item: any, index: number) => ({
     key: item?._id,
     label: (
-      <div className="conservation" onClick={() => handleChangeConservation(item)}>
+      <div
+        className="conservation"
+        onClick={() => handleChangeConservation(item)}
+      >
         <div className="content">
           <div>
             <Badge count={totalUnreadMess(item?.unReadMessage)}>
@@ -152,17 +169,19 @@ const SiderMain = () => {
 
           <div className="right">
             <div className="name">{item?.nameRoom}</div>
-            {
-              item?.lastMessage &&
-              <div className="msg">{item?.lastMessage?.sender?.name}: {item?.lastMessage?.content}</div>
-            }
+            {item?.lastMessage && (
+              <div className="msg">
+                {item?.lastMessage?.sender?.name}: {item?.lastMessage?.content}
+              </div>
+            )}
           </div>
         </div>
         <div>
-          {
-            item?.lastMessage &&
-            <div className="time-now">{moment(new Date(item?.lastMessage?.createdAt)).fromNow()}</div>
-          }
+          {item?.lastMessage && (
+            <div className="time-now">
+              {moment(new Date(item?.lastMessage?.createdAt)).fromNow()}
+            </div>
+          )}
         </div>
       </div>
     ),
@@ -171,7 +190,7 @@ const SiderMain = () => {
   const menu = (
     <Menu>
       <Menu.Item onClick={toggleOpenModalProfile}>Hồ sơ của bạn</Menu.Item>
-      <Menu.Item>Đăng xuất</Menu.Item>
+      <Menu.Item onClick={handleLogout}>Đăng xuất</Menu.Item>
     </Menu>
   );
   return (
@@ -186,7 +205,8 @@ const SiderMain = () => {
       <ModalAddGroup
         fetchRooms={fetchRooms}
         isModalOpen={openModal}
-        handleCancel={toggleOpenModal} />
+        handleCancel={toggleOpenModal}
+      />
       <ModalProfile
         isModalOpen={openModalProfile}
         handleCancel={toggleOpenModalProfile}
@@ -208,26 +228,34 @@ const SiderMain = () => {
             allowClear
             size="large"
           />
-          {
-            user?.roles[0]?.code === ROLES.ADMIN &&
+          {user?.roles[0]?.code === ROLES.ADMIN && (
             <UsergroupAddOutlined
               onClick={toggleOpenModal}
               style={{ fontSize: "25px", color: "#aaa", cursor: "pointer" }}
             />
-          }
+          )}
         </div>
       </Header>
       <Content>
-        {
-          rooms?.length > 0 ?
-
-            <MenuStyled mode="inline" defaultSelectedKeys={[JSON.parse(localStorage.getItem("conservation") as any)?._id || ""]} items={items} />
-            :
-            <div style={{
-              textAlign: 'center',
-              fontWeight: "500"
-            }}>Bạn chưa được thêm vào group 😍😍</div>
-        }
+        {rooms?.length > 0 ? (
+          <MenuStyled
+            mode="inline"
+            defaultSelectedKeys={[
+              JSON.parse(localStorage.getItem("conservation") as any)?._id ||
+                "",
+            ]}
+            items={items}
+          />
+        ) : (
+          <div
+            style={{
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
+            Bạn chưa được thêm vào group 😍😍
+          </div>
+        )}
       </Content>
     </SiderMainStyled>
   );
@@ -284,7 +312,6 @@ const MenuStyled = styled(Menu)`
           text-overflow: ellipsis;
           max-width: 250px;
           width: 100%;
-
         }
       }
     }

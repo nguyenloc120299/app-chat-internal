@@ -14,20 +14,27 @@ export const login = async (form: Login) => {
     data: form,
   });
   return res.data;
-}
+};
 
 export const refresh = async () => {
-  const refreshToken = localStorage.getItem('refreshToken')
+  const refreshToken = localStorage.getItem("refreshToken");
   const res = await requestService.post("/profile/refresh", {
     data: {
-      refreshToken
-    }
+      refreshToken,
+    },
   });
   return res.data;
-}
+};
 
 export const getUsers = async (data: Quer_User) => {
-  const { page, pageSize, roleName, search } = data
-  const res = await requestService.get(`/room/users?page=${page}&pageSize=${pageSize}&roleName=${roleName}&search=${search}`)
-  return res.data
-}
+  const { page, pageSize, roleName, search } = data;
+  const res = await requestService.get(
+    `/room/users?page=${page}&pageSize=${pageSize}&roleName=${roleName}&search=${search}`
+  );
+  return res.data;
+};
+
+export const logout = async () => {
+  const res = await requestService.delete("/profile/logout");
+  return res.data;
+};
