@@ -108,11 +108,13 @@ const Home = () => {
 
   return (
     <HomeStyled>
+
       {
         lightBox &&
         <LightBoxFile fileSelect={fileSelectm} lightBox={lightBox} handleCloseLightBox={handleCloseLightBox} />
       }
       <div className="content" ref={refDisplay}>
+
         {user && messages?.length ? (
           messages?.map((item: any) =>
             <Messages message={item} handleLightBox={handleLightBox} />
@@ -175,6 +177,7 @@ const HomeStyled: any = styled.div`
       left: 50%;
       transform: translate(-50%, -50%);
       font-weight: 500;
+      text-align: center;
     }
     &::-webkit-scrollbar {
       display: none;

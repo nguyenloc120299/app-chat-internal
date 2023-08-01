@@ -16,7 +16,7 @@ const { Sider, Header, Content } = Layout;
 const SiderInfo = () => {
   const token = theme.useToken();
   const [member, setMember] = useState<any>(null);
-  const user = useAppSelector((state) => state.user) as any;
+  const { user } = useAppSelector((state) => state.user) as any;
   const [openModal, toggleOpenModal] = useToggle(false);
   const { conservation } = useAppSelector((state) => state.app) as any;
   const [openModalAddUser, toggleopenModalAddUser] = useToggle(false);
@@ -68,7 +68,7 @@ const SiderInfo = () => {
         isModalOpen={openModal}
         handleCancel={toggleOpenModal}
         isShow={true}
-        user={user}
+        user={member}
       />
       {!isMobile && (
         <Header
@@ -84,7 +84,7 @@ const SiderInfo = () => {
           <div className="title">
             Danh sách thành viên ({conservation?.members?.length})
           </div>
-          {user?.roles?.length && user?.roles[0]?.code === ROLES.ADMIN && (
+          {user?.roles && user?.roles[0]?.code === ROLES.ADMIN && (
             <UserAddOutlined
               onClick={() => {
                 toggleopenModalAddUser();
@@ -110,7 +110,7 @@ const SiderInfo = () => {
                   )
                 }
                 onClick={() => {
-                  if (member?.roles[0]?.code !== ROLES.ADMIN) return;
+                  if (user?.roles[0]?.code !== ROLES.ADMIN) return;
                   setMember(item);
                   toggleOpenModal();
                 }}

@@ -1,7 +1,7 @@
 import { ROLES } from "types/global";
 import requestService from "./request";
 import { exitCode } from "process";
-import { Add_Room, RoomData } from "types/joinRoom";
+import { Add_Room, RoomData, Update_Room } from "types/joinRoom";
 
 
 export const getAll = async (role: ROLES) => {
@@ -30,6 +30,13 @@ export const create = async (roomData: RoomData) => {
 export const addMembers = async (addRoom: Add_Room) => {
     const res = await requestService.post('/room/add-members', {
         data: addRoom
+    })
+    return res.data
+}
+
+export const updateMember = async (updateRoom: Update_Room) => {
+    const res = await requestService.post('/room/update-room', {
+        data: updateRoom
     })
     return res.data
 }

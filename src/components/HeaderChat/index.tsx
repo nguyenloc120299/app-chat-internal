@@ -1,17 +1,19 @@
 import { Avatar, Drawer, Layout, theme } from "antd";
 import React from "react";
 import styled from "styled-components";
-import { ArrowLeftOutlined, MenuOutlined ,UserOutlined} from "@ant-design/icons";
+import { ArrowLeftOutlined, MenuOutlined, UserOutlined } from "@ant-design/icons";
 import { isMobile } from "mobile-device-detect";
 import { useAppDispatch, useAppSelector } from "store";
 import { changeConservation } from "store/app";
 import useToggle from "hooks/useToggle";
 import SiderInfo from "Layout/SiderInfo";
+import ModalGroupProfile from "components/Modals/ModalProfileGroup";
 const { Header } = Layout;
 const HeaderChat = () => {
   const token = theme.useToken();
   const [openDrawer, toggleDrawer] = useToggle(false);
   const { conservation } = useAppSelector((state) => state.app) as any
+  const [modalProfileGroup, toggleProfileGroup] = useToggle(false)
   const dispatch = useAppDispatch();
   return (
     <HeaderChatStyled
@@ -43,8 +45,10 @@ const HeaderChat = () => {
               />
             </div>
           )}
-          <div style={{marginRight:"10px"}}>
-            <Avatar size={40} icon={conservation?.avatarRoom ? <img src={conservation?.avatarRoom} alt=""/> : <UserOutlined/>}/>
+          <div style={{ marginRight: "10px", cursor: 'pointer' }}
+            onClick={toggleProfileGroup}
+          >
+            <Avatar size={40} icon={conservation?.avatarRoom ? <img src={conservation?.avatarRoom} alt="" /> : <UserOutlined />} />
           </div>
           <div className="info-group">
             <div className="name">{conservation?.nameRoom}</div>
@@ -53,6 +57,10 @@ const HeaderChat = () => {
         </div>
 
       </div>
+      <ModalGroupProfile
+        handleCancel={toggleProfileGroup}
+        isModalOpen={modalProfileGroup}
+      />
       {isMobile && (
         <div>
           <MenuOutlined style={{ fontSize: "20px" }} onClick={toggleDrawer} />
@@ -64,7 +72,6 @@ const HeaderChat = () => {
               onClose={toggleDrawer}
               open={openDrawer}
               size="large"
-              
             >
               <SiderInfo />
             </Drawer>

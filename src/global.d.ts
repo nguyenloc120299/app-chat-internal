@@ -4,3 +4,4 @@ declare global {
     ethereum: any;
   }
 }
+

@@ -7,13 +7,13 @@ export interface Sender {
     _id: string
 }
 export interface MESSAGE {
-  content: string;
-  sender: Sender;
-  createdAt: any;
-  roomId: string;
-  role: ROLES;
-  file?: string;
-  typeFile?: TypeSend;
+    content: string;
+    sender: Sender;
+    createdAt: any;
+    roomId: string;
+    role: ROLES;
+    file?: string;
+    typeFile?: TypeSend;
 }
 export interface Leave_Room {
     roomId: string,
@@ -28,4 +28,10 @@ export interface RoomData {
 export interface Add_Room {
     roomId: string,
     members: Array<string>
+}
+
+export interface Update_Room {
+    roomId: string
+    avatarRoom: string
+    nameRoom: string
 }

@@ -20,13 +20,14 @@ const LayoutMain: React.FC = () => {
       <SiderMain />
       {conservation ? (
         <Layout className="site-layout">
+
           <HeaderChat />
           <Content>
             <Outlet />
           </Content>
         </Layout>
       ) : (
-        <MainContent/>
+        <MainContent />
       )}
       {!isMobile && !!conservation && <SiderInfo />}
     </LayoutStyled>

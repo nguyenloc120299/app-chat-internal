@@ -11,6 +11,8 @@ import { DataContext, DataProvider } from "context/globalSocket";
 import { useLoading } from "hooks/useLoading";
 import { LoadingOutlined } from "@ant-design/icons";
 import logo from "assets/images/photo_2023-07-26_13-50-12.jpg";
+import { getMessagingToken } from "firebase-config/firebaseConfig";
+
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 function App() {
   const height = useContentResizer();
@@ -31,6 +33,9 @@ function App() {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    getMessagingToken()
+  }, [])
   return (
     <ConfigProvider
       theme={{
