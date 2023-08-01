@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { LinkOutlined, FrownOutlined, SendOutlined } from "@ant-design/icons";
+import {  FrownOutlined, SendOutlined } from "@ant-design/icons";
 import { Input, Popover, message as toast } from "antd";
 
 import { colors } from "styles/theme";
@@ -52,10 +52,7 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
       dispatch(
         updateMessages({
           content: contentMessage,
-          sender: {
-            name: user?.name,
-            _id: user?._id,
-          },
+          sender: user,
           createdAt: new Date(),
         })
       );
@@ -67,10 +64,7 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
         createdAt: new Date(),
         roomId: conservation?._id,
         role: user?.roles[0]?.code,
-        sender: {
-          name: user?.name,
-          _id: user?._id,
-        },
+        sender: user,
       });
       scrollToBottom();
     } catch (error) {
@@ -91,7 +85,12 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
       value: false,
     });
   };
-
+const handleKeyDown = (e: any) => {
+  if (e.ctrlKey && e.keyCode === 32) {
+    e.preventDefault(); 
+    setContentMessage(contentMessage + "\n"); 
+  }
+};
   return (
     <FooterChatStyled>
       <div className="main">
@@ -102,9 +101,10 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
             style={{
               height: "50px",
             }}
+            onKeyDown={handleKeyDown}
             value={contentMessage}
             onChange={(e: any) => setContentMessage(e?.target.value)}
-            placeholder={`Nhập nội dung để gửi tin nhắn vào ${conservation?.roomName}...`}
+            placeholder={`Nhập nội dung để gửi tin nhắn vào @${conservation?.nameRoom}...`}
           />
           <Popover
             content={

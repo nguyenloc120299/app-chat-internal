@@ -1,5 +1,6 @@
 import { Avatar, Checkbox, Modal, Spin, Tag } from 'antd'
 import Search from 'antd/es/input/Search'
+import { UserOutlined } from "@ant-design/icons";
 import { getUsers } from 'api/user'
 import { useFnLoading, useLoading } from 'hooks/useLoading'
 import React, { useEffect, useState } from 'react'
@@ -86,7 +87,7 @@ const ListUsers = ({ onChange, isNew }: PROPS_TYPE) => {
                 fetchUsers({ ...querys, roleName: item?.key });
               }}
               key={index}
-              style={{marginBottom:"5px"}}
+              style={{ marginBottom: "5px" }}
             >
               {item?.name}
             </Tag>
@@ -107,7 +108,7 @@ const ListUsers = ({ onChange, isNew }: PROPS_TYPE) => {
                     )
                   }
                 />
-                <Avatar size={40} />
+                <Avatar size={40} icon={item?.profilePicUrl ? <img src={item?.profilePicUrl} alt=""/>: <UserOutlined/>} />
                 <div className="name">{item.name}</div>
               </div>
             ))}

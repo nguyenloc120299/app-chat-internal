@@ -1,14 +1,10 @@
 import {
-  Avatar,
   Button,
-  Checkbox,
   Col,
   Form,
   Input,
   Modal,
-  Radio,
   Row,
-  Tag,
   Upload,
   message,
 } from "antd";

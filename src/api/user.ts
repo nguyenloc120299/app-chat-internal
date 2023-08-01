@@ -1,6 +1,7 @@
 import { Login, ROLES, Register } from "types/global";
 import requestService from "./request";
 import { Quer_User } from "types/query";
+import { UPDATE_USER } from "types/user";
 
 export const register = async (form: Register) => {
   const res = await requestService.post("/auth/signup", {
@@ -33,7 +34,12 @@ export const getUsers = async (data: Quer_User) => {
   );
   return res.data;
 };
-
+export const updateUser = async (data: UPDATE_USER) => {
+  const res = await requestService.post("/profile/me", {
+    data:data
+  });
+  return res.data;
+};
 export const logout = async () => {
   const res = await requestService.delete("/profile/logout");
   return res.data;

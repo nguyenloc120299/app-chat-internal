@@ -5,12 +5,11 @@ import { Button, Result } from "antd";
 
 import { useLocation } from "react-router";
 import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "store";
 
 const PrivateRoute: FC<RouteProps> = (props) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const logged = localStorage.getItem('accessToken');
-  return logged ? (props.element as React.ReactElement) : <div>21212</div>;
+  const {user} = useAppSelector((state)=>state.app) as any;
+  return user ? (props.element as React.ReactElement) : <div>21212</div>;
 };
 
 export default PrivateRoute;

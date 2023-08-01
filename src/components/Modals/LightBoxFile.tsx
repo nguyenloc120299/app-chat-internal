@@ -21,6 +21,7 @@ const LightBoxFile = ({ lightBox, fileSelect, handleCloseLightBox }: Props_Type)
       handleCloseLightBox()
       handleVideoClick()
     }}
+    
       maskStyle={{
         backgroundColor: 'rgba(0, 0, 0, 0.9)'
       }}

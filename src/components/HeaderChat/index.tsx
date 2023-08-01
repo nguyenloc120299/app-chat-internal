@@ -1,7 +1,7 @@
-import { Drawer, Layout, theme } from "antd";
+import { Avatar, Drawer, Layout, theme } from "antd";
 import React from "react";
 import styled from "styled-components";
-import { ArrowLeftOutlined, MenuOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MenuOutlined ,UserOutlined} from "@ant-design/icons";
 import { isMobile } from "mobile-device-detect";
 import { useAppDispatch, useAppSelector } from "store";
 import { changeConservation } from "store/app";
@@ -43,7 +43,9 @@ const HeaderChat = () => {
               />
             </div>
           )}
-
+          <div style={{marginRight:"10px"}}>
+            <Avatar size={40} icon={conservation?.avatarRoom ? <img src={conservation?.avatarRoom} alt=""/> : <UserOutlined/>}/>
+          </div>
           <div className="info-group">
             <div className="name">{conservation?.nameRoom}</div>
             <div className="member">{conservation?.members?.length} Thành viên</div>
@@ -62,6 +64,7 @@ const HeaderChat = () => {
               onClose={toggleDrawer}
               open={openDrawer}
               size="large"
+              
             >
               <SiderInfo />
             </Drawer>

@@ -12,6 +12,7 @@ const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
+  
     changeConservation: (state, action) => {
       state.conservation = action.payload;
     },

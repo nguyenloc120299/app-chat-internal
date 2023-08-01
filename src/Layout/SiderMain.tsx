@@ -1,10 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Avatar, Badge, Dropdown, Layout, Menu, MenuProps, theme } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
-import {
-  UserOutlined,
-  UsergroupAddOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import Search from "antd/es/input/Search";
 import { isMobile } from "mobile-device-detect";
@@ -21,6 +18,9 @@ import { ROLES } from "types/global";
 import { useCallBackApi } from "hooks/useCallback";
 import { logout } from "api/user";
 import { useNavigate } from "react-router-dom";
+import { useFnLoading, useLoading } from "hooks/useLoading";
+import { setUser } from "store/user";
+import { setMessages } from "store/chat";
 const { Sider } = Layout;
 const SiderMain = () => {
   const token = theme.useToken();
@@ -33,6 +33,8 @@ const SiderMain = () => {
   const { user } = useAppSelector((state) => state.user) as any;
   const dispatch = useAppDispatch();
   const isCallback = useCallBackApi("ADD_MEMBERS");
+
+  const { onLoading } = useFnLoading();
   const [rooms, setRooms] = useState<any>([]);
   const navigate = useNavigate();
   useEffect(() => {
@@ -88,8 +90,10 @@ const SiderMain = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      dispatch(changeConservation(false));
+      dispatch(setMessages([]))
       navigate("/login");
-      localStorage.clear()
+      localStorage.clear();
     } catch (error) {
       console.log(error);
     }
@@ -121,14 +125,22 @@ const SiderMain = () => {
       console.log(error);
     }
   };
+
   const fetchRooms = async () => {
+   
     try {
       const data = await getAll(user?.roles[0]?.code);
       setRooms(data?.data);
     } catch (error) {
       console.log(error);
+     
     }
+     onLoading({
+       type: "FETCH",
+       value: false,
+     });
   };
+
   useEffect(() => {
     if (user) {
       fetchRooms();
@@ -157,7 +169,16 @@ const SiderMain = () => {
         <div className="content">
           <div>
             <Badge count={totalUnreadMess(item?.unReadMessage)}>
-              <Avatar size={60} icon={item?.avatarRoom ? <img src={item?.avatarRoom} /> : <UserOutlined />} />
+              <Avatar
+                size={60}
+                icon={
+                  item?.avatarRoom ? (
+                    <img src={item?.avatarRoom} />
+                  ) : (
+                    <UserOutlined />
+                  )
+                }
+              />
             </Badge>
           </div>
 
@@ -217,12 +238,21 @@ const SiderMain = () => {
         <div className="header-main">
           <Dropdown overlay={menu} className="dropdown">
             <div>
-              <Avatar size={48} icon={<UserOutlined />} />
+              <Avatar
+                size={48}
+                icon={
+                  user?.profilePicUrl ? (
+                    <img src={user?.profilePicUrl} alt="avt" />
+                  ) : (
+                    <UserOutlined />
+                  )
+                }
+              />
             </div>
           </Dropdown>
 
           <SearchInput
-            placeholder="input search text"
+            placeholder="Tìm kiếm nhóm"
             allowClear
             size="large"
           />
@@ -240,7 +270,7 @@ const SiderMain = () => {
             mode="inline"
             defaultSelectedKeys={[
               JSON.parse(localStorage.getItem("conservation") as any)?._id ||
-              "",
+                "",
             ]}
             items={items}
           />

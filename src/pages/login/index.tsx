@@ -9,6 +9,7 @@ import { login } from "api/user";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { useDispatch } from "react-redux";
 import { setUser } from "store/user";
+
 const LoginForm: FC = () => {
   const isLoading = useLoading("LOGIN")
   const dispatch = useDispatch()
@@ -19,6 +20,10 @@ const LoginForm: FC = () => {
     try {
       const data = await login(form)
       if (data.statusCode !== "10000") return message.error("Đăng nhập không thành công vui lòng thử lại")
+      onLoading({
+        type:"FETCH",
+        value:true
+      })
       dispatch(setUser(data?.data?.user))
       localStorage.setItem("accessToken", data?.data?.tokens?.accessToken)
       localStorage.setItem("refreshToken", data?.data?.tokens?.refreshToken)
