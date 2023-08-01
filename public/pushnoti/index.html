@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Push Notification Example</title>
+</head>
+<body>
+  <h1>Push Notification Example</h1>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging.js"></script>
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      // Thêm thông tin cấu hình Firebase của bạn ở đây
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Đăng ký Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service Worker registered:', registration);
+          })
+          .catch((error) => {
+            console.error('Service Worker registration failed:', error);
+          });
+      });
+    }
+
+    // Lấy Token FCM
+    const askForPermission = async () => {
+      try {
+        const messaging = firebase.messaging();
+        await messaging.requestPermission();
+        const token = await messaging.getToken();
+        console.log('FCM Token:', token);
+        // Gửi token lên server
+        sendTokenToServer(token);
+      } catch (error) {
+        console.error('Error getting FCM token:', error);
+      }
+    };
+
+    // Gửi token lên server (mô phỏng)
+    const sendTokenToServer = (token) => {
+      // Gửi token lên server để lưu trữ và sử dụng cho việc gửi push notification sau này
+      // Thay thế phần này bằng phần gửi request thực tế đến server của bạn.
+      console.log('Token sent to server:', token);
+    };
+
+    askForPermission();
+  </script>
+</body>
+</html>
