@@ -1,6 +1,7 @@
 export interface UPDATE_USER {
-  name: string
-  profilePicUrl: string
-  linkFaceBook: string
-  linkTelegram: string
+  name?: string;
+  profilePicUrl?: string;
+  linkFaceBook?: string;
+  linkTelegram?: string;
+  tokenFireBase?: string;
 }

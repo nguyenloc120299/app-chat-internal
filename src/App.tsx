@@ -15,13 +15,15 @@ import {
   getFirebaseToken,
   onForegroundMessage,
 } from "./firebase-config/firebaseConfig";
+import { updateUser } from "api/user";
+import { useAppSelector } from "store";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 function App() {
   const height = useContentResizer();
   const context = useContext(DataContext);
   const handleSetSocket = context.setSocket;
-
+  const {user} = useAppSelector((state)=>state.user)
   const isFetchRooms = useLoading("FETCH");
 
   const dispatch = useDispatch();
@@ -37,8 +39,11 @@ function App() {
 
   const handleGetFirebaseToken = () => {
     getFirebaseToken()
-      .then((firebaseToken) => {
+      .then(async (firebaseToken) => {
         console.log("Firebase token: ", firebaseToken);
+        await updateUser({
+          tokenFireBase: firebaseToken,
+        });
       })
       .catch((err) =>
         console.error("An error occured while retrieving firebase token. ", err)
@@ -59,26 +64,26 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Check if the browser supports notifications
-    if ("Notification" in window) {
-      // Request permission for notifications
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          handleGetFirebaseToken();
-          // Permission has been granted, you can now initialize Firebase Messaging and retrieve the token.
-          // Your Firebase Messaging setup code goes here.
-        } else if (permission === "denied") {
-          // The user denied permission for notifications. Handle it appropriately.
-          console.log("Notification permission denied");
-        } else if (permission === "default") {
-          // The user closed the permission request dialog without granting or denying permission.
-          // You can prompt the user again or handle it based on your application logic.
-          console.log("Notification permission dismissed");
-        }
-      });
-    }
-    
-  }, []);
+    if (user)
+      if ("Notification" in window) {
+        // Check if the browser supports notifications
+        // Request permission for notifications
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            handleGetFirebaseToken();
+            // Permission has been granted, you can now initialize Firebase Messaging and retrieve the token.
+            // Your Firebase Messaging setup code goes here.
+          } else if (permission === "denied") {
+            // The user denied permission for notifications. Handle it appropriately.
+            console.log("Notification permission denied");
+          } else if (permission === "default") {
+            // The user closed the permission request dialog without granting or denying permission.
+            // You can prompt the user again or handle it based on your application logic.
+            console.log("Notification permission dismissed");
+          }
+        });
+      }
+  }, [user]);
   return (
     <ConfigProvider
       theme={{
