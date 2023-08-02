@@ -11,15 +11,17 @@ import { DataContext, DataProvider } from "context/globalSocket";
 import { useLoading } from "hooks/useLoading";
 import { LoadingOutlined } from "@ant-design/icons";
 import logo from "assets/images/photo_2023-07-26_13-50-12.jpg";
-import { getMessagingToken } from "firebase-config/firebaseConfig";
+import {
+  getFirebaseToken,
+  onForegroundMessage,
+} from "./firebase-config/firebaseConfig";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 function App() {
   const height = useContentResizer();
   const context = useContext(DataContext);
   const handleSetSocket = context.setSocket;
-  // const { conservation } = useAppSelector((state) => state.app) as any;
-  // const { user } = useAppSelector((state) => state.user) as any;
+
   const isFetchRooms = useLoading("FETCH");
 
   const dispatch = useDispatch();
@@ -33,9 +35,50 @@ function App() {
     };
   }, [dispatch]);
 
+  const handleGetFirebaseToken = () => {
+    getFirebaseToken()
+      .then((firebaseToken) => {
+        console.log("Firebase token: ", firebaseToken);
+      })
+      .catch((err) =>
+        console.error("An error occured while retrieving firebase token. ", err)
+      );
+  };
+
   useEffect(() => {
-    getMessagingToken()
-  }, [])
+    onForegroundMessage()
+      .then((payload) => {
+        console.log("Received foreground message: ", payload);
+      })
+      .catch((err) =>
+        console.log(
+          "An error occured while retrieving foreground message. ",
+          err
+        )
+      );
+  }, []);
+
+  useEffect(() => {
+    // Check if the browser supports notifications
+    if ("Notification" in window) {
+      // Request permission for notifications
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          handleGetFirebaseToken();
+          // Permission has been granted, you can now initialize Firebase Messaging and retrieve the token.
+          // Your Firebase Messaging setup code goes here.
+        } else if (permission === "denied") {
+          // The user denied permission for notifications. Handle it appropriately.
+          console.log("Notification permission denied");
+        } else if (permission === "default") {
+          // The user closed the permission request dialog without granting or denying permission.
+          // You can prompt the user again or handle it based on your application logic.
+          console.log("Notification permission dismissed");
+        }
+      });
+    }
+    
+  }, []);
   return (
     <ConfigProvider
       theme={{

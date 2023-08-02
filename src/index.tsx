@@ -10,6 +10,22 @@ import { DataProvider } from "context/globalSocket";
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then((registration) => {
+        console.log("Service Worker registered successfully.");
+      })
+      .catch((error) => {
+        console.error("Service Worker registration failed:", error);
+      });
+  });
+} else {
+  console.warn("Service Worker is not supported in this browser.");
+}
+
 root.render(
   <Provider store={store}>
     <DataProvider>

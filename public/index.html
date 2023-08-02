@@ -32,17 +32,15 @@
         margin: 0;
       }
     </style>
-    <!-- PushAlert -->
-    <script type="text/javascript">
-      (function (d, t) {
-        var g = d.createElement(t),
-          s = d.getElementsByTagName(t)[0];
-        g.src =
-          "https://cdn.pushalert.co/integrate_9443b1ce025d545ad741580e9411338e.js";
-        s.parentNode.insertBefore(g, s);
-      })(document, "script");
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" defer></script>
+    <script>
+      window.OneSignal = window.OneSignal || [];
+      OneSignal.push(function () {
+        OneSignal.init({
+          appId: "cac75653-d6e1-4c2d-9cf9-d5b450d07e65",
+        });
+      });
     </script>
-    <!-- End PushAlert -->
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
