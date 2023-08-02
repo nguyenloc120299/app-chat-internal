@@ -14,6 +14,7 @@ export interface MESSAGE {
     role: ROLES;
     file?: string;
     typeFile?: TypeSend;
+    _id?: string
 }
 export interface Leave_Room {
     roomId: string,

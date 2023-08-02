@@ -7,19 +7,26 @@ import { AudioMutedOutlined } from "@ant-design/icons";
 import { useAppSelector } from "store";
 import moment from "moment";
 import { Avatar } from "antd";
-import useToggle from "hooks/useToggle";
+
 type Props_type = {
   message: any;
-  handleLightBox: any
+  handleLightBox: any,
+  messUnread: any
 };
-const Messages = ({ message, handleLightBox }: Props_type) => {
-  const { conservation } = useAppSelector((state) => state.app) as any;
+const Messages = ({ message, handleLightBox, messUnread }: Props_type) => {
   const { user } = useAppSelector((state) => state.user) as any;
-  const [modalFile, toggleModalFile] = useToggle(false);
   return (
     <>
+      {
+        (
+          message?._id === messUnread?._id &&
+          user && message?.sender?._id !== user?._id
+        )
+        &&
+        <div className="mess-unread">Tin nhắn chưa đọc</div>
+      }
       {message?.sender?._id === user?._id ? (
-        <div className="message-sender">
+        <div className="message-sender" id={message?._id}>
           <div className="main-msg">
             <div className="content-msg">
               <div className="auth">
@@ -69,7 +76,7 @@ const Messages = ({ message, handleLightBox }: Props_type) => {
           </div>
         </div>
       ) : (
-        <div className="message-recipient">
+        <div className="message-recipient" id={message?._id}>
           <div className="main-msg">
             <div>
               <Avatar

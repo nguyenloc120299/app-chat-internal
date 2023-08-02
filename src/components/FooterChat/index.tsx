@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import {  FrownOutlined, SendOutlined } from "@ant-design/icons";
+import { FrownOutlined, SendOutlined } from "@ant-design/icons";
 import { Input, Popover, message as toast } from "antd";
 
 import { colors } from "styles/theme";
@@ -10,7 +10,7 @@ import { SendData, sendMess } from "api/chat";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { useSocket } from "hooks/useSocket";
 import FileUpload from "./FileUpload";
-import { updateMessages } from "store/chat";
+import { resetMessUnread, updateMessages } from "store/chat";
 import { isMobile } from "mobile-device-detect";
 
 type Messagereciept = {
@@ -44,6 +44,7 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
     });
     try {
       setContentMessage("");
+      dispatch(resetMessUnread())
       const sendData = {
         content: contentMessage,
         room: conservation?._id,
@@ -65,6 +66,7 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
         roomId: conservation?._id,
         role: user?.roles[0]?.code,
         sender: user,
+        _id: res?.data?._id
       });
       scrollToBottom();
     } catch (error) {
@@ -85,12 +87,12 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
       value: false,
     });
   };
-const handleKeyDown = (e: any) => {
-  if (e.ctrlKey && e.keyCode === 32) {
-    e.preventDefault(); 
-    setContentMessage(contentMessage + "\n"); 
-  }
-};
+  const handleKeyDown = (e: any) => {
+    if (e.ctrlKey && e.keyCode === 32) {
+      e.preventDefault();
+      setContentMessage(contentMessage + "\n");
+    }
+  };
   return (
     <FooterChatStyled>
       <div className="main">

@@ -59,9 +59,9 @@ function App() {
           handleGetFirebaseToken();
         } else if (permission === "denied") {
           console.log("Notification permission denied");
-          // openNotification("top");
+          openNotification("top");
         } else if (permission === "default") {
-          // openNotification("top");
+          openNotification("top");
           console.log("Notification permission dismissed");
         }
       });
@@ -69,15 +69,16 @@ function App() {
       console.log("This browser does not support notifications.");
     }
   };
-  // const openNotification = (placement: NotificationPlacement) => {
-  //   notification.open({
-  //     message: `Vui lòng cho phép trình duyệt được bật thông báo`,
-  //     description:
-  //       "Để có thể nhận được tinh nhắn khi tới vui lòng cho phép trình duyệt được bật thông báo",
-  //     placement,
-  //     btn: <Button onClick={requestNotificationPermission}>Chấp nhận</Button>,
-  //   } as ArgsProps);
-  // };
+  const openNotification = (placement: NotificationPlacement) => {
+    notification.open({
+      message: `Vui lòng cho phép trình duyệt được bật thông báo`,
+      description:
+        "Để có thể nhận được tinh nhắn khi tới vui lòng cho phép trình duyệt được bật thông báo",
+      placement,
+      btn: <Button onClick={() => Notification.requestPermission()}>Câp quyền</Button>
+
+    } as ArgsProps);
+  };
   useEffect(() => {
     if (user) {
       requestNotificationPermission();

@@ -1,3 +1,5 @@
+import { ROLES } from "./global";
+
 export interface UPDATE_USER {
   name?: string;
   profilePicUrl?: string;
@@ -9,5 +11,7 @@ export interface UPDATE_USER {
 export interface PushNotification {
   titleNotification: string;
   bodyNotification: string;
-  tokenFireBase:string;
+  userId: string;
+  room: string,
+  role: ROLES
 }

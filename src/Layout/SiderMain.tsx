@@ -20,7 +20,7 @@ import { logout } from "api/user";
 import { useNavigate } from "react-router-dom";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { setUser } from "store/user";
-import { setMessages } from "store/chat";
+import { resetMessUnread, setMessages } from "store/chat";
 const { Sider } = Layout;
 const SiderMain = () => {
   const token = theme.useToken();
@@ -100,6 +100,7 @@ const SiderMain = () => {
   };
   const handleChangeConservation = async (item: any) => {
     dispatch(changeConservation(item));
+    dispatch(resetMessUnread())
     localStorage.setItem("conservation", JSON.stringify(item));
     try {
       handleJoinRoom({
@@ -127,18 +128,18 @@ const SiderMain = () => {
   };
 
   const fetchRooms = async () => {
-   
+
     try {
       const data = await getAll(user?.roles[0]?.code);
       setRooms(data?.data);
     } catch (error) {
       console.log(error);
-     
+
     }
-     onLoading({
-       type: "FETCH",
-       value: false,
-     });
+    onLoading({
+      type: "FETCH",
+      value: false,
+    });
   };
 
   useEffect(() => {
@@ -270,7 +271,7 @@ const SiderMain = () => {
             mode="inline"
             defaultSelectedKeys={[
               JSON.parse(localStorage.getItem("conservation") as any)?._id ||
-                "",
+              "",
             ]}
             items={items}
           />

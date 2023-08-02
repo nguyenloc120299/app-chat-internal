@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { UserOutlined, BellOutlined, UserAddOutlined } from "@ant-design/icons";
 import useToggle from "hooks/useToggle";
 import ModalProfile from "components/Modals/ModalProfile";
-import { useAppSelector } from "store";
+import { useAppDispatch, useAppSelector } from "store";
 import ListUsers from "components/views/ListUsers";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { addMembers } from "api/room";
@@ -13,6 +13,8 @@ import { useCallBackApi, useFnCallbackApi } from "hooks/useCallback";
 import { isMobile } from "mobile-device-detect";
 import { ROLES } from "types/global";
 import { pushNotification } from "api/chat";
+import { resetMessUnread, updateMessages } from "store/chat";
+import { useSocket } from "hooks/useSocket";
 const { Sider, Header, Content } = Layout;
 const SiderInfo = () => {
   const token = theme.useToken();
@@ -26,6 +28,8 @@ const SiderInfo = () => {
   const { onCallback } = useFnCallbackApi();
   const isLoading = useLoading("ADD_MEMBERS");
   const isCallback = useCallBackApi("ADD_MEMBERS");
+  const dispatch = useAppDispatch()
+  const { handleSendMessage } = useSocket()
   const onChange = (checkedValues: CheckboxValueType[]) => {
     setMembers(checkedValues);
   };
@@ -57,10 +61,29 @@ const SiderInfo = () => {
   };
   const pushNotifications = async (member: any) => {
     try {
-      await pushNotification({
-        bodyNotification: `${conservation?.nameRoom}: @${member?.name} đã nhắc đến bạn`,
+      dispatch(resetMessUnread())
+      dispatch(
+        updateMessages({
+          content: "@" + member?.name,
+          sender: user,
+          createdAt: new Date(),
+        })
+      );
+      const res = await pushNotification({
+        bodyNotification: `${conservation?.nameRoom}: @${user?.name} đã nhắc đến bạn`,
         titleNotification: "Union Digital Chat ",
-        tokenFireBase: member?.tokenFireBase,
+        userId: member?._id,
+        role: user?.roles[0]?.code,
+        room: conservation?._id
+      });
+
+      handleSendMessage({
+        content: "@" + member?.name,
+        createdAt: new Date(),
+        roomId: conservation?._id,
+        role: user?.roles[0]?.code,
+        sender: user,
+        _id: res?.data?._id
       });
     } catch (error) {
       console.log(error);
@@ -130,7 +153,7 @@ const SiderInfo = () => {
               <div className="name">{item?.name}</div>
               <BellOutlined
                 style={{ fontSize: "20px", color: "#666" }}
-                onClick={()=>pushNotifications(item)}
+                onClick={() => pushNotifications(item)}
               />
             </div>
           ))}

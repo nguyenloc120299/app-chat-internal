@@ -14,7 +14,7 @@ import { DataContext } from "context/globalSocket";
 import { MESSAGE } from "types/joinRoom";
 import { useSocket } from "hooks/useSocket";
 import TagsRole from "components/views/TagsRole";
-import { resetMessages, setMessages, updateMessages } from "store/chat";
+import { resetMessages, setMessages, setMessagesUnread, updateMessages } from "store/chat";
 import Messages from "components/messages/Messages";
 import LightBoxFile from "components/Modals/LightBoxFile";
 import useToggle from "hooks/useToggle";
@@ -23,7 +23,7 @@ moment.locale("vi");
 const Home = () => {
   const { handleLeaveRoom } = useSocket();
   const context = useContext(DataContext);
-  const { messages } = useAppSelector((state) => state.chat) as any;
+  const { messages, messUnread } = useAppSelector((state) => state.chat) as any;
   const dispatch = useAppDispatch();
   const { socket } = context;
   const refDisplay = useRef<any>();
@@ -37,8 +37,10 @@ const Home = () => {
   useEffect(() => {
     if (socket) {
       socket.on("messageClient", (newPost: MESSAGE) => {
-        if (newPost && user && newPost.sender._id !== user?._id)
+        if (newPost && user && newPost.sender._id !== user?._id) {
+          dispatch(setMessagesUnread(newPost))
           dispatch(updateMessages(newPost));
+        }
       });
     }
     return () => {
@@ -66,6 +68,7 @@ const Home = () => {
         );
     };
   }, [socket, conservation, user]);
+
 
   const handleLightBox = (item: any) => {
     setFileSelect(item)
@@ -117,13 +120,19 @@ const Home = () => {
 
         {user && messages?.length ? (
           messages?.map((item: any) =>
-            <Messages message={item} handleLightBox={handleLightBox} />
+            <Messages message={item} handleLightBox={handleLightBox} messUnread={messUnread?.[0]} />
           )
         ) : (
           <div className="text-intro">
             Gửi tin nhắn để có thể trò chuyện 🤭🤭
           </div>
         )}
+        {
+          messUnread?.length > 0 &&
+          <div className="total-unread">
+            <a href={`#${messUnread?.[0]?._id}`}>{messUnread?.length} tin nhắn chưa đọc</a>
+          </div>
+        }
       </div>
       <FooterChat
         messages={messages}
@@ -148,6 +157,17 @@ const HomeStyled: any = styled.div`
     padding: 20px;
     overflow-y: scroll;
     position: relative;
+    .mess-unread{
+      text-align: center;
+      font-weight: 500;
+      padding: 15px;
+    }
+    .total-unread{
+      text-align: right;
+      a{
+        font-weight: 500;
+      }
+    }
     .file-content {
       margin-top: 10px;
       cursor: pointer;
