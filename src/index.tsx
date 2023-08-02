@@ -14,7 +14,7 @@ const root = ReactDOM.createRoot(
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/firebase-messaging-sw.js")
+      .register("/service-worker.js")
       .then((registration) => {
         console.log("Service Worker registered successfully.");
       })
