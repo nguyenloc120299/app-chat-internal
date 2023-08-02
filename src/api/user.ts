@@ -24,7 +24,7 @@ export const refresh = async () => {
       refreshToken,
     },
   });
-  return res.data;
+  return res.data
 };
 
 export const getUsers = async (data: Quer_User) => {
