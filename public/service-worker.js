@@ -13,11 +13,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('push', (event) => {
     const payload = event.data.text();
     console.log('Received a push notification:', payload);
+    const notificationTitle = payload.notification.title;
+    const notificationOptions = { body: payload.notification.body };
 
-    const options = {
-        body: payload,
-        icon: "" // Thay bằng đường dẫn đến biểu tượng thông báo của bạn
-    };
 
-    event.waitUntil(self.registration.showNotification('Push Notification', options));
+    event.waitUntil(self.registration.showNotification(notificationTitle, notificationOptions));
 });
