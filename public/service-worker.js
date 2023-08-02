@@ -15,7 +15,15 @@ self.addEventListener('push', (event) => {
     console.log('Received a push notification:', payload);
 
     const notificationTitle = payload.notification.title;
-    const notificationOptions = { body: payload.notification.body, icon: payload.notification.image };
+    const notificationOptions = { 
+        body: payload.notification.body,
+         icon: payload.notification.image,
+        data: {
+            // Add your deep link URL here
+            url: '/',
+        },
+        
+    };
     const options = {
         body: payload,
         icon: 'path/to/your/icon.png', // Thay bằng đường dẫn đến biểu tượng thông báo của bạn

@@ -5,3 +5,9 @@ export interface UPDATE_USER {
   linkTelegram?: string;
   tokenFireBase?: string;
 }
+
+export interface PushNotification {
+  titleNotification: string;
+  bodyNotification: string;
+  tokenFireBase:string;
+}

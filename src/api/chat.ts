@@ -1,3 +1,4 @@
+import { PushNotification } from "types/user";
 import requestService from "./request";
 
 export enum TypeSend {
@@ -32,6 +33,13 @@ export const sendMess = async (sendData: SendData) => {
 export const upload = async (formData: any) => {
   const res = await requestService.post("/upload/file", {
     data: formData,
+  });
+  return res.data;
+};
+
+export const pushNotification = async (pushNotification: PushNotification) => {
+  const res = await requestService.post("/message/push-notification", {
+    data: pushNotification,
   });
   return res.data;
 };

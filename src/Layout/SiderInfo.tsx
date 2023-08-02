@@ -12,6 +12,7 @@ import { useFnLoading, useLoading } from "hooks/useLoading";
 import { useCallBackApi, useFnCallbackApi } from "hooks/useCallback";
 import { isMobile } from "mobile-device-detect";
 import { ROLES } from "types/global";
+import { pushNotification } from "api/chat";
 const { Sider, Header, Content } = Layout;
 const SiderInfo = () => {
   const token = theme.useToken();
@@ -53,6 +54,17 @@ const SiderInfo = () => {
       type: "ADD_MEMBERS",
       value: false,
     });
+  };
+  const pushNotifications = async (member: any) => {
+    try {
+      await pushNotification({
+        bodyNotification: `${conservation?.nameRoom}: @${member?.name} đã nhắc đến bạn`,
+        titleNotification: "Union Digital Chat ",
+        tokenFireBase: member?.tokenFireBase,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <SiderInfoStyled
@@ -116,7 +128,10 @@ const SiderInfo = () => {
                 }}
               />
               <div className="name">{item?.name}</div>
-              <BellOutlined style={{ fontSize: "20px", color: "#666" }} />
+              <BellOutlined
+                style={{ fontSize: "20px", color: "#666" }}
+                onClick={()=>pushNotifications(item)}
+              />
             </div>
           ))}
         </div>
