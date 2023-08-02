@@ -15,8 +15,8 @@ self.addEventListener('push', (event) => {
     console.log('Received a push notification:', payload);
 
     const options = {
-        body: payload,
-        icon: 'path/to/your/icon.png', // Thay bằng đường dẫn đến biểu tượng thông báo của bạn
+        body: payload?.notification.body,
+        icon: payload?.notification.image,
     };
 
     event.waitUntil(self.registration.showNotification('Push Notification', options));
