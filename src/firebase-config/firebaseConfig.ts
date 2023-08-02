@@ -1,3 +1,6 @@
+import { notification } from "antd";
+import { ArgsProps, NotificationPlacement } from "antd/es/notification/interface";
+import { updateUser } from "api/user";
 import { initializeApp } from "firebase/app";
 import { getToken, getMessaging, onMessage } from "firebase/messaging";
 
@@ -15,11 +18,10 @@ const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 
 export const getOrRegisterServiceWorker = () => {
-  
   if ("serviceWorker" in navigator) {
     return window.navigator.serviceWorker
       .getRegistration("/firebase-push-notification-scope")
-      .then((serviceWorker) => {      
+      .then((serviceWorker) => {
         if (serviceWorker) return serviceWorker;
         return window.navigator.serviceWorker.register(
           "/firebase-messaging-sw.js",
@@ -41,5 +43,21 @@ export const getFirebaseToken = () =>
     })
   );
 
+export const handleGetFirebaseToken = () => {
+  getFirebaseToken()
+    .then(async (firebaseToken) => {
+      console.log("Firebase token: ", firebaseToken);
+      await updateUser({
+        tokenFireBase: firebaseToken,
+      });
+    })
+    .catch((err) =>
+      console.error("An error occured while retrieving firebase token. ", err)
+    );
+};
+
 export const onForegroundMessage = () =>
   new Promise((resolve) => onMessage(messaging, (payload) => resolve(payload)));
+
+
+

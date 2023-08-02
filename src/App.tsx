@@ -1,6 +1,6 @@
 import RenderRouter from "./routes";
 import { BrowserRouter as Router, useNavigate } from "react-router-dom";
-import { ConfigProvider, Spin, theme as a } from "antd";
+import { Button, ConfigProvider, notification, Spin, theme as a } from "antd";
 import { colors } from "styles/theme";
 import useContentResizer from "hooks/useContentResizer";
 import styled from "styled-components";
@@ -12,18 +12,21 @@ import { useLoading } from "hooks/useLoading";
 import { LoadingOutlined } from "@ant-design/icons";
 import logo from "assets/images/photo_2023-07-26_13-50-12.jpg";
 import {
-  getFirebaseToken,
+  handleGetFirebaseToken,
   onForegroundMessage,
 } from "./firebase-config/firebaseConfig";
-import { updateUser } from "api/user";
 import { useAppSelector } from "store";
+import {
+  ArgsProps,
+  NotificationPlacement,
+} from "antd/es/notification/interface";
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 function App() {
   const height = useContentResizer();
   const context = useContext(DataContext);
   const handleSetSocket = context.setSocket;
-  const {user} = useAppSelector((state)=>state.user)
+  const { user } = useAppSelector((state) => state.user);
   const isFetchRooms = useLoading("FETCH");
 
   const dispatch = useDispatch();
@@ -37,19 +40,6 @@ function App() {
     };
   }, [dispatch]);
 
-  const handleGetFirebaseToken = () => {
-    getFirebaseToken()
-      .then(async (firebaseToken) => {
-        console.log("Firebase token: ", firebaseToken);
-        await updateUser({
-          tokenFireBase: firebaseToken,
-        });
-      })
-      .catch((err) =>
-        console.error("An error occured while retrieving firebase token. ", err)
-      );
-  };
-
   useEffect(() => {
     onForegroundMessage()
       .then((payload) => {
@@ -62,27 +52,36 @@ function App() {
         )
       );
   }, []);
-
+  const requestNotificationPermission = () => {
+    if ("Notification" in window) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          handleGetFirebaseToken();
+        } else if (permission === "denied") {
+          console.log("Notification permission denied");
+          // openNotification("top");
+        } else if (permission === "default") {
+          // openNotification("top");
+          console.log("Notification permission dismissed");
+        }
+      });
+    } else {
+      console.log("This browser does not support notifications.");
+    }
+  };
+  // const openNotification = (placement: NotificationPlacement) => {
+  //   notification.open({
+  //     message: `Vui lòng cho phép trình duyệt được bật thông báo`,
+  //     description:
+  //       "Để có thể nhận được tinh nhắn khi tới vui lòng cho phép trình duyệt được bật thông báo",
+  //     placement,
+  //     btn: <Button onClick={requestNotificationPermission}>Chấp nhận</Button>,
+  //   } as ArgsProps);
+  // };
   useEffect(() => {
-    if (user)
-      if ("Notification" in window) {
-        // Check if the browser supports notifications
-        // Request permission for notifications
-        Notification.requestPermission().then((permission) => {
-          if (permission === "granted") {
-            handleGetFirebaseToken();
-            // Permission has been granted, you can now initialize Firebase Messaging and retrieve the token.
-            // Your Firebase Messaging setup code goes here.
-          } else if (permission === "denied") {
-            // The user denied permission for notifications. Handle it appropriately.
-            console.log("Notification permission denied");
-          } else if (permission === "default") {
-            // The user closed the permission request dialog without granting or denying permission.
-            // You can prompt the user again or handle it based on your application logic.
-            console.log("Notification permission dismissed");
-          }
-        });
-      }
+    if (user) {
+      requestNotificationPermission();
+    }
   }, [user]);
   return (
     <ConfigProvider
