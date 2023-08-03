@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface StateType {
   messages: any[];
-  messUnread: any[]// Replace `any[]` with the actual type of your messages
+  messUnread: any[]; // Replace `any[]` with the actual type of your messages
 }
 const initialState: StateType = {
   messages: [],
-  messUnread: []
+  messUnread: [],
 };
 
 const appSlice = createSlice({
@@ -16,6 +16,12 @@ const appSlice = createSlice({
       return {
         ...state,
         messages: [...state.messages, ...action.payload],
+      };
+    },
+    loadMoreMessUpdate: (state, action) => {
+      return {
+        ...state,
+        messages: [...action.payload, ...state.messages],
       };
     },
     setMessagesUnread: (state, action) => {
@@ -37,11 +43,18 @@ const appSlice = createSlice({
       };
     },
     resetMessages: (state, action) => {
-      state.messages = action.payload
-    }
+      state.messages = action.payload;
+    },
   },
 });
 
-export const { setMessages, updateMessages, resetMessages, setMessagesUnread, resetMessUnread } = appSlice.actions;
+export const {
+  setMessages,
+  updateMessages,
+  resetMessages,
+  setMessagesUnread,
+  resetMessUnread,
+  loadMoreMessUpdate,
+} = appSlice.actions;
 
 export default appSlice.reducer;

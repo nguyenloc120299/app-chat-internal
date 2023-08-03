@@ -26,8 +26,14 @@ interface Props_Type {
   messages: Array<any>;
   setMessages: any;
   scrollToBottom: any;
+  setPage: any;
 }
-const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
+const FooterChat = ({
+  messages,
+  setMessages,
+  scrollToBottom,
+  setPage,
+}: Props_Type) => {
   const { handleSendMessage } = useSocket();
   const { conservation } = useAppSelector((state) => state.app) as any;
   const { user } = useAppSelector((state) => state.user) as any;
@@ -37,14 +43,15 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
   const dispatch = useAppDispatch();
   const senMessageChat = async () => {
     if (!conservation) return toast.warning("Bạn chưa có nhóm chát nào");
-    if (!contentMessage.length) return
+    if (!contentMessage.length) return;
     onLoading({
       type: "SEND",
       value: true,
     });
     try {
       setContentMessage("");
-      dispatch(resetMessUnread())
+      setPage(1);
+      dispatch(resetMessUnread());
       const sendData = {
         content: contentMessage,
         room: conservation?._id,
@@ -66,9 +73,10 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
         roomId: conservation?._id,
         role: user?.roles[0]?.code,
         sender: user,
-        _id: res?.data?._id
+        _id: res?.data?._id,
       });
-      scrollToBottom();
+
+      // scrollToBottom();
     } catch (error) {
       console.log(error);
       dispatch(
@@ -91,6 +99,9 @@ const FooterChat = ({ messages, setMessages, scrollToBottom }: Props_Type) => {
     if (e.ctrlKey && e.keyCode === 32) {
       e.preventDefault();
       setContentMessage(contentMessage + "\n");
+    } else if (e.keyCode === 13) {
+      e.preventDefault();
+      senMessageChat();
     }
   };
   return (

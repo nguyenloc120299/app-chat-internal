@@ -1,5 +1,4 @@
-import { Avatar, Layout, Spin, Tag } from "antd";
-import { getMessages, TypeSend } from "api/chat";
+import { getMessages } from "api/chat";
 import FooterChat from "components/FooterChat";
 import { isMobile } from "mobile-device-detect";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -7,19 +6,24 @@ import { useAppDispatch, useAppSelector } from "store";
 import styled from "styled-components";
 import { colors } from "styles/theme";
 import moment from "moment";
-import "moment/locale/vi"; // without this line it didn't work
+import "moment/locale/vi";
 import { useFnLoading, useLoading } from "hooks/useLoading";
-import { AudioMutedOutlined } from "@ant-design/icons";
 import { DataContext } from "context/globalSocket";
 import { MESSAGE } from "types/joinRoom";
 import { useSocket } from "hooks/useSocket";
-import TagsRole from "components/views/TagsRole";
-import { resetMessages, setMessages, setMessagesUnread, updateMessages } from "store/chat";
+import {
+  loadMoreMessUpdate,
+  resetMessages,
+  resetMessUnread,
+  setMessages,
+  setMessagesUnread,
+  updateMessages,
+} from "store/chat";
 import Messages from "components/messages/Messages";
 import LightBoxFile from "components/Modals/LightBoxFile";
 import useToggle from "hooks/useToggle";
+import { scrollToBottom, scrollToElement } from "helpers/scrollBottom";
 moment.locale("vi");
-
 const Home = () => {
   const { handleLeaveRoom } = useSocket();
   const context = useContext(DataContext);
@@ -27,18 +31,22 @@ const Home = () => {
   const dispatch = useAppDispatch();
   const { socket } = context;
   const refDisplay = useRef<any>();
-  const [lightBox, toggleLightBox] = useToggle(false)
-  const [fileSelectm, setFileSelect] = useState<any>(null)
+  const [lightBox, toggleLightBox] = useToggle(false);
+  const [fileSelectm, setFileSelect] = useState<any>(null);
   const { conservation } = useAppSelector((state) => state.app) as any;
   const { user } = useAppSelector((state) => state.user) as any;
   const { onLoading } = useFnLoading();
   const isLoading = useLoading("MESSAGES");
+  const [page, setPage] = useState(1);
+  const [isLoadMore, setIsLoadMore] = useState(false);
+  const [totalMessage, setTotalMessages] = useState(0);
 
+  ///listen event socket
   useEffect(() => {
     if (socket) {
       socket.on("messageClient", (newPost: MESSAGE) => {
         if (newPost && user && newPost.sender._id !== user?._id) {
-          dispatch(setMessagesUnread(newPost))
+          dispatch(setMessagesUnread(newPost));
           dispatch(updateMessages(newPost));
         }
       });
@@ -50,6 +58,7 @@ const Home = () => {
     };
   }, [socket, user]);
 
+  ///leave room socket
   useEffect(() => {
     if (socket)
       window.addEventListener("beforeunload", () =>
@@ -69,75 +78,124 @@ const Home = () => {
     };
   }, [socket, conservation, user]);
 
-
   const handleLightBox = (item: any) => {
-    setFileSelect(item)
-    toggleLightBox()
-  }
+    setFileSelect(item);
+    toggleLightBox();
+  };
+
+  useEffect(() => {
+    const container = refDisplay.current;
+    let isScrollingUp = false;
+
+    if (isLoading || totalMessage === messages.length) return;
+    const handleWheel = (event: any) => {
+      if (event.wheelDelta > 0 && !isScrollingUp) {
+        isScrollingUp = true;
+        handleScrollUp();
+      }
+    };
+    const handleScrollUp = () => {
+      setPage((prevPage) => prevPage + 1);
+      isScrollingUp = false;
+    };
+    container.addEventListener("wheel", handleWheel);
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, [isLoading, messages]);
+
+  useEffect(() => {
+    if (page > 1 && messages?.length < totalMessage)
+      loadMoreMessage(conservation, page);
+  }, [page]);
 
   const handleCloseLightBox = () => {
-    setFileSelect(null)
-    toggleLightBox()
-  }
+    setFileSelect(null);
+    toggleLightBox();
+  };
+
   const fetchAllMessages = async (conservation: any) => {
     dispatch(resetMessages([]));
+
+    try {
+      const res = await getMessages(conservation._id, `1`, "100");
+      if (res && res?.data) {
+        dispatch(setMessages(res?.data?.messages));
+        setPage(1);
+        setTotalMessages(res?.data?.total);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const loadMoreMessage = async (conservation: any, page: number) => {
     try {
       onLoading({ type: "MESSAGES", value: true });
-      const res = await getMessages(conservation._id, "1", "50");
-      if (res && res?.data) dispatch(setMessages(res?.data));
+      const res = await getMessages(conservation._id, `${page}`, "100");
+      if (res && res?.data) {
+        dispatch(loadMoreMessUpdate(res?.data?.messages));
+      }
     } catch (error) {
       console.log(error);
     }
     onLoading({ type: "MESSAGES", value: false });
   };
-  const fectAllCondition = async () => {
+
+  const fetchAllCondition = async () => {
     if (localStorage.getItem("conservation"))
       return await fetchAllMessages(
         JSON.parse(localStorage.getItem("conservation") as any)
       );
     if (conservation) return await fetchAllMessages(conservation);
   };
+
   useEffect(() => {
-    fectAllCondition();
+    fetchAllCondition();
   }, [conservation]);
 
-  const scrollToBottom = () => {
-    const chatDisplay = refDisplay?.current;
-    chatDisplay.scrollTop = chatDisplay.scrollHeight;
-  };
   useEffect(() => {
-    scrollToBottom();
-  }, [conservation, messages]);
+    if (page === 1) scrollToBottom(refDisplay);
+  }, [conservation, messages, page]);
 
   return (
     <HomeStyled>
-
-      {
-        lightBox &&
-        <LightBoxFile fileSelect={fileSelectm} lightBox={lightBox} handleCloseLightBox={handleCloseLightBox} />
-      }
-      <div className="content" ref={refDisplay}>
-
+      {lightBox && (
+        <LightBoxFile
+          fileSelect={fileSelectm}
+          lightBox={lightBox}
+          handleCloseLightBox={handleCloseLightBox}
+        />
+      )}
+      <div className="content" ref={refDisplay} id="scrollableDiv">
         {user && messages?.length ? (
-          messages?.map((item: any) =>
-            <Messages message={item} handleLightBox={handleLightBox} messUnread={messUnread?.[0]} />
-          )
+          messages?.map((item: any) => (
+            <Messages
+              message={item}
+              handleLightBox={handleLightBox}
+              messUnread={messUnread?.[0]}
+            />
+          ))
         ) : (
           <div className="text-intro">
             Gửi tin nhắn để có thể trò chuyện 🤭🤭
           </div>
         )}
-        {
-          messUnread?.length > 0 &&
+
+        {/* {messUnread?.length > 0 && (
           <div className="total-unread">
-            <a href={`#${messUnread?.[0]?._id}`}>{messUnread?.length} tin nhắn chưa đọc</a>
+            <a href={`#${messUnread?.[0]?._id}`}>
+              {messUnread?.length} tin nhắn chưa đọc
+            </a>
           </div>
-        }
+        )} */}
       </div>
       <FooterChat
         messages={messages}
         setMessages={setMessages}
         scrollToBottom={scrollToBottom}
+        setPage={setPage}
       />
     </HomeStyled>
   );
@@ -157,14 +215,18 @@ const HomeStyled: any = styled.div`
     padding: 20px;
     overflow-y: scroll;
     position: relative;
-    .mess-unread{
+    .mess-unread {
       text-align: center;
       font-weight: 500;
       padding: 15px;
     }
-    .total-unread{
-      text-align: right;
-      a{
+    .total-unread {
+      position: sticky;
+      bottom: 5px;
+      left: 0;
+      text-align: left;
+
+      a {
         font-weight: 500;
       }
     }
@@ -176,7 +238,7 @@ const HomeStyled: any = styled.div`
         max-width: 350px;
         object-fit: cover;
         border-radius: 10px;
-        @media(max-width:678px){
+        @media (max-width: 678px) {
           width: 100%;
         }
       }
