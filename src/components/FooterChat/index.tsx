@@ -108,7 +108,7 @@ const FooterChat = ({
     <FooterChatStyled>
       <div className="main">
         <div className="body">
-          <FileUpload />
+          <FileUpload  setPage={setPage}/>
           <Input
             size="large"
             style={{

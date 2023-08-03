@@ -46,7 +46,7 @@ const Home = () => {
     if (socket) {
       socket.on("messageClient", (newPost: MESSAGE) => {
         if (newPost && user && newPost.sender._id !== user?._id) {
-          dispatch(setMessagesUnread(newPost));
+          //dispatch(setMessagesUnread(newPost));
           dispatch(updateMessages(newPost));
         }
       });

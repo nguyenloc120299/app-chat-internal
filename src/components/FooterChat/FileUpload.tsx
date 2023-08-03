@@ -5,8 +5,10 @@ import { LinkOutlined } from "@ant-design/icons";
 import { FileUploader } from "react-drag-drop-files";
 import useToggle from "hooks/useToggle";
 import ModalFile from "components/Modals/ModalFile";
-
-const FileUpload = () => {
+type Props_Type = {
+  setPage: any
+};
+const FileUpload = ({ setPage }: Props_Type) => {
   const fileTypes = ["JPG", "PNG", "GIF", "MP4"];
   const [file, setFile] = useState(null);
   const [modalFile, toggleModalFile] = useToggle(false);
@@ -27,7 +29,12 @@ const FileUpload = () => {
   };
   return (
     <>
-      <ModalFile handleCancel={onCloseModal} isModalOpen={modalFile}  file={file}/>
+      <ModalFile
+        handleCancel={onCloseModal}
+        isModalOpen={modalFile}
+        file={file}
+        setPage={setPage}
+      />
       <FileUploader handleChange={handleChange} name="file" types={fileTypes}>
         <LinkOutlined
           style={{ fontSize: "30px", color: "#aaa", cursor: "pointer" }}

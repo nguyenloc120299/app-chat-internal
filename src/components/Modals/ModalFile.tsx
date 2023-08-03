@@ -28,12 +28,14 @@ type Props_Type = {
   handleOk?: any;
   handleCancel: any;
   file?: any;
+  setPage: any;
 };
 const ModalFile = ({
   isModalOpen,
   handleOk,
   handleCancel,
   file,
+  setPage,
 }: Props_Type) => {
   const [contentMsg, setContentMsg] = useState("");
   const { conservation } = useAppSelector((state) => state.app) as any;
@@ -57,7 +59,7 @@ const ModalFile = ({
     });
     try {
       setContentMsg("");
-
+      setPage(1);
       dispatch(
         updateMessages({
           content: contentMsg,
@@ -70,8 +72,8 @@ const ModalFile = ({
           typeFile: isImageFile(file)
             ? TypeSend.IMAGE
             : isVideoFile(file)
-              ? TypeSend.VIDEO
-              : TypeSend.ORDER,
+            ? TypeSend.VIDEO
+            : TypeSend.ORDER,
         })
       );
       handleCancel();
@@ -87,8 +89,8 @@ const ModalFile = ({
         typeFile: isImageFile(file)
           ? TypeSend.IMAGE
           : isVideoFile(file)
-            ? TypeSend.VIDEO
-            : TypeSend.ORDER,
+          ? TypeSend.VIDEO
+          : TypeSend.ORDER,
       } as SendData;
 
       const res = await sendMess(sendData);
@@ -105,8 +107,8 @@ const ModalFile = ({
         typeFile: isImageFile(file)
           ? TypeSend.IMAGE
           : isVideoFile(file)
-            ? TypeSend.VIDEO
-            : TypeSend.ORDER,
+          ? TypeSend.VIDEO
+          : TypeSend.ORDER,
       });
     } catch (error) {
       console.log(error);
@@ -170,12 +172,15 @@ const ModalFile = ({
             </Col>
             <Col span={2}>
               <Popover
-                content={<EmojiPicker onEmojiClick={(emojis: any) =>
-                  setContentMsg(contentMsg + emojis?.emoji)
+                content={
+                  <EmojiPicker
+                    onEmojiClick={(emojis: any) =>
+                      setContentMsg(contentMsg + emojis?.emoji)
+                    }
+                    width={isMobile ? "100%" : 450}
+                    height={isMobile ? 350 : "450px"}
+                  />
                 }
-                  width={isMobile ? "100%" : 450}
-                  height={isMobile ? 350 : "450px"}
-                />}
                 title="EMOJI"
                 trigger={"click"}
               >
