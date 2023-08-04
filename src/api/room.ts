@@ -4,12 +4,12 @@ import { exitCode } from "process";
 import { Add_Room, RoomData, Update_Room } from "types/joinRoom";
 
 
-export const getAll = async (role: ROLES) => {
+export const getAll = async (role: ROLES, page: number) => {
     let res
     if (ROLES.ADMIN === role)
-        res = await requestService.get("/room/get-all")
+        res = await requestService.get("/room/get-all?page=" + page + "&limit=10")
     else
-        res = await requestService.get('/room-user/get-room')
+        res = await requestService.get('/room-user/get-room?page=' + page + "&limit=10")
     return res.data
 }
 

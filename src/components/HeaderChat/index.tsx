@@ -90,8 +90,12 @@ const HeaderChatStyled = styled(Header)`
     line-height: normal;
     .name {
       font-weight: 700;
-      font-size: 16;
+      font-size: 16px;
       color: #000;
+      max-width: 150px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     .member {
       font-size: 14px;

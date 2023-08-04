@@ -72,8 +72,9 @@ const ModalFile = ({
           typeFile: isImageFile(file)
             ? TypeSend.IMAGE
             : isVideoFile(file)
-            ? TypeSend.VIDEO
-            : TypeSend.ORDER,
+              ? TypeSend.VIDEO
+              : TypeSend.ORDER,
+          role: user?.roles[0]?.code,
         })
       );
       handleCancel();
@@ -89,8 +90,8 @@ const ModalFile = ({
         typeFile: isImageFile(file)
           ? TypeSend.IMAGE
           : isVideoFile(file)
-          ? TypeSend.VIDEO
-          : TypeSend.ORDER,
+            ? TypeSend.VIDEO
+            : TypeSend.ORDER,
       } as SendData;
 
       const res = await sendMess(sendData);
@@ -98,7 +99,7 @@ const ModalFile = ({
         content: contentMsg,
         createdAt: new Date(),
         roomId: conservation?._id,
-        role: user?.roles[0]?.code,
+        role: user?.roles[0],
         sender: {
           name: user?.name,
           _id: user?._id,
@@ -107,8 +108,8 @@ const ModalFile = ({
         typeFile: isImageFile(file)
           ? TypeSend.IMAGE
           : isVideoFile(file)
-          ? TypeSend.VIDEO
-          : TypeSend.ORDER,
+            ? TypeSend.VIDEO
+            : TypeSend.ORDER,
       });
     } catch (error) {
       console.log(error);

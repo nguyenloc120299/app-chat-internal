@@ -62,6 +62,7 @@ const FooterChat = ({
           content: contentMessage,
           sender: user,
           createdAt: new Date(),
+          role: user?.roles[0]?.code,
         })
       );
 
@@ -108,7 +109,7 @@ const FooterChat = ({
     <FooterChatStyled>
       <div className="main">
         <div className="body">
-          <FileUpload  setPage={setPage}/>
+          <FileUpload setPage={setPage} />
           <Input
             size="large"
             style={{

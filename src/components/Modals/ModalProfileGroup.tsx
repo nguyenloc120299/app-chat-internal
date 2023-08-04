@@ -5,6 +5,7 @@ import {
   Input,
   Modal,
   Row,
+  Tag,
   Upload,
   message,
 } from "antd";
@@ -140,7 +141,11 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
           </div>
         </Col>
       </Row>
-
+      <Row style={{ margin: "20px 0" }}>
+        <Tag color="red" style={{
+          cursor: "pointer"
+        }}>Xóa nhóm</Tag>
+      </Row>
     </ModalStyled>
   );
 };

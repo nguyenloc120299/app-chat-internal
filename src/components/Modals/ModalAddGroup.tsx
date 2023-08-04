@@ -22,11 +22,12 @@ type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
   handleCancel: any;
-  fetchRooms: any
+  fetchRooms: any;
+  onupdateRoom: any
 };
 
 
-const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms }: Props_Type) => {
+const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms, onupdateRoom }: Props_Type) => {
   const [avatarRoom, setAvatarRoom] = useState<any>(null)
   const [members, setMembers] = useState<any>([])
   const [nameRoom, setNameRoom] = useState('')
@@ -47,23 +48,27 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms }: Prop
   }
   const onfinish = async () => {
     try {
+      setNameRoom('')
       onLoading({
         type: "ADD_ROOM",
         value: true
       })
-      const fileUrl = await uploadFile(avatarRoom);
-      if (!fileUrl)
-        return message.warning("Có lỗi xảy ra vui lòng thử lại sao");
+      let fileUrl
+      if (avatarRoom) {
+        fileUrl = await uploadFile(avatarRoom);
+        if (!fileUrl)
+          return message.warning("Có lỗi xảy ra vui lòng thử lại sao");
+      }
       const res = await create({
-        avatarRoom: fileUrl?.url,
+        avatarRoom: fileUrl ? fileUrl?.url : null,
         members,
         nameRoom
       })
-      await fetchRooms()
-      message.success("Đã thêm room mới")
-      handleCancel()
       setMembers([])
-      setNameRoom('')
+      message.success("Đã thêm room mới")
+      onupdateRoom(res?.data)
+      handleCancel()
+
     } catch (error) {
       console.log(error);
       message.warning("Tạo nhóm không thành công vui lòng thử lại")

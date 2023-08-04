@@ -1,7 +1,7 @@
 import { getMessages } from "api/chat";
 import FooterChat from "components/FooterChat";
 import { isMobile } from "mobile-device-detect";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { TouchEvent, useContext, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "store";
 import styled from "styled-components";
 import { colors } from "styles/theme";
@@ -87,23 +87,34 @@ const Home = () => {
     const container = refDisplay.current;
     let isScrollingUp = false;
 
-    if (isLoading || totalMessage === messages.length) return;
+    const handleTouchMove = (event: TouchEvent) => {
+      if (isLoading || totalMessage === messages.length) return;
+      const startY = event.touches[0].clientY;
+      container.addEventListener("touchmove", (event: TouchEvent) => {
+        const currentY = event.touches[0].clientY;
+        if (currentY < startY && !isScrollingUp) {
+          isScrollingUp = true;
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+    };
+
     const handleWheel = (event: any) => {
+      if (isLoading || totalMessage === messages.length) return;
       if (event.wheelDelta > 0 && !isScrollingUp) {
         isScrollingUp = true;
-        handleScrollUp();
+        setPage((prevPage) => prevPage + 1);
       }
     };
-    const handleScrollUp = () => {
-      setPage((prevPage) => prevPage + 1);
-      isScrollingUp = false;
-    };
+
     container.addEventListener("wheel", handleWheel);
+    container.addEventListener("touchmove", handleTouchMove);
 
     return () => {
       container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("touchmove", handleTouchMove);
     };
-  }, [isLoading, messages]);
+  }, [isLoading, messages, setPage]);
 
   useEffect(() => {
     if (page > 1 && messages?.length < totalMessage)
@@ -153,7 +164,7 @@ const Home = () => {
 
   useEffect(() => {
     fetchAllCondition();
-  }, [conservation]);
+  }, [conservation?._id]);
 
   useEffect(() => {
     if (page === 1) scrollToBottom(refDisplay);

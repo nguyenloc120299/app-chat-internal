@@ -67,6 +67,7 @@ const SiderInfo = () => {
           content: "@" + member?.name,
           sender: user,
           createdAt: new Date(),
+          role: user?.roles[0]?.code,
         })
       );
       const res = await pushNotification({
