@@ -1,13 +1,15 @@
 import axios from "axios";
-
-export const uploadFile = async (file: any) => {
+export enum TYPEFILE {
+    AVATAR = "AVATAR",
+    MESSAGE = "MESSAGE",
+}
+export const uploadFile = async (file: any, type: TYPEFILE) => {
     try {
-        console.log("file", file);
 
         const formData = new FormData();
         formData.append("file", file);
         const res = await axios.post(
-            `${process.env.REACT_APP_BASE_URL}api/upload/file`,
+            `${process.env.REACT_APP_BASE_URL}api/upload/file?type=${type}`,
             formData
         );
         return res.data;

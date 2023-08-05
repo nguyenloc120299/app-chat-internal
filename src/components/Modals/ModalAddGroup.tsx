@@ -17,7 +17,7 @@ import { create } from "api/room";
 import ListUsers from "components/views/ListUsers";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { FileUploader } from "react-drag-drop-files";
-import { uploadFile } from "api/until";
+import { TYPEFILE, uploadFile } from "api/until";
 type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
@@ -55,7 +55,7 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms, onupda
       })
       let fileUrl
       if (avatarRoom) {
-        fileUrl = await uploadFile(avatarRoom);
+        fileUrl = await uploadFile(avatarRoom, TYPEFILE.AVATAR);
         if (!fileUrl)
           return message.warning("Có lỗi xảy ra vui lòng thử lại sao");
       }

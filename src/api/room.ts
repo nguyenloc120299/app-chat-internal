@@ -40,3 +40,10 @@ export const updateMember = async (updateRoom: Update_Room) => {
     })
     return res.data
 }
+
+export const deleteRoom = async (room: string) => {
+    const res = await requestService.post('/room/delete', {
+        data: { room }
+    })
+    return res.data
+}

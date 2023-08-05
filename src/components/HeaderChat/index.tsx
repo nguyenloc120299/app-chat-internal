@@ -92,10 +92,13 @@ const HeaderChatStyled = styled(Header)`
       font-weight: 700;
       font-size: 16px;
       color: #000;
-      max-width: 150px;
+      max-width: 350px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      @media(max-width:478px){
+         max-width: 150px;
+      }
     }
     .member {
       font-size: 14px;

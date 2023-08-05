@@ -14,11 +14,12 @@ import { PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { FileUploader } from "react-drag-drop-files";
-import { uploadFile } from "api/until";
+import { TYPEFILE, uploadFile } from "api/until";
 import { useAppDispatch, useAppSelector } from "store";
-import { updateMember } from "api/room";
+import { deleteRoom, updateMember } from "api/room";
 import { changeConservation } from "store/app";
 import { useCallBackApi, useFnCallbackApi } from "hooks/useCallback";
+import { setRooms } from "store/room";
 type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
@@ -27,7 +28,9 @@ type Props_Type = {
 
 
 const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) => {
+
   const { conservation } = useAppSelector((state) => state.app) as any
+  const { rooms } = useAppSelector((state) => state.room) as any
   const [avatarRoom, setAvatarRoom] = useState<any>(null)
   const [nameRoom, setNameRoom] = useState("")
   const { onLoading } = useFnLoading()
@@ -35,6 +38,7 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
   const { onCallback } = useFnCallbackApi()
   const isLoading = useLoading("ADD_ROOM")
   const isCallBack = useCallBackApi("ADD_MEMBERS")
+
   useEffect(() => {
     setNameRoom(conservation?.nameRoom)
   }, [conservation, isModalOpen])
@@ -56,7 +60,7 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
       })
       let fileUrl: any
       if (avatarRoom) {
-        fileUrl = await uploadFile(avatarRoom);
+        fileUrl = await uploadFile(avatarRoom, TYPEFILE.AVATAR);
         if (!fileUrl) {
           onLoading({
             type: "ADD_ROOM",
@@ -72,16 +76,23 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
       })
       dispatch(changeConservation({
         ...conservation,
-        name: res?.data?.nameRoom,
+        nameRoom: res?.data?.nameRoom,
         avatarRoom: res?.data?.avatarRoom
       }))
       localStorage.setItem("conservation", JSON.stringify(res?.data))
       setNameRoom('')
+
+      const newState = rooms.rooms.map((obj: any) => {
+        if (obj._id === res?.data?._id) {
+          return { ...obj, nameRoom: res?.data?.nameRoom, avatarRoom: res?.data?.avatarRoom };
+        }
+        return obj;
+      });
+      dispatch(setRooms({
+        ...rooms,
+        rooms: newState
+      }))
       message.success("Đã cập nhật lại room")
-      onCallback({
-        type: "ADD_MEMBERS",
-        value: !isCallBack
-      })
       handleCancel()
 
     } catch (error) {
@@ -94,6 +105,30 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
     })
   }
 
+  const handleDeleteRoom = async (room: string) => {
+    onLoading({
+      type: "ADD_ROOM",
+      value: true
+    })
+    try {
+      await deleteRoom(room)
+      const newRooms = rooms?.rooms.filter((r: any) => r?._id != room)
+      dispatch(setRooms({
+        ...rooms,
+        rooms: newRooms
+      }))
+      dispatch(changeConservation(false))
+      localStorage.removeItem('conservation')
+      message.success("Bạn đã xóa nhóm")
+    } catch (error) {
+      console.log(error);
+      message.success("Đã có lỗi xảy ra")
+    }
+    onLoading({
+      type: "ADD_ROOM",
+      value: false
+    })
+  }
   return (
     <ModalStyled
       title="Tạo nhóm"
@@ -144,7 +179,7 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
       <Row style={{ margin: "20px 0" }}>
         <Tag color="red" style={{
           cursor: "pointer"
-        }}>Xóa nhóm</Tag>
+        }} onClick={() => handleDeleteRoom(conservation?._id)}>Xóa nhóm</Tag>
       </Row>
     </ModalStyled>
   );

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useForm } from "antd/es/form/Form";
 import { updateUser } from "api/user";
 import { useFnLoading, useLoading } from "hooks/useLoading";
-import { uploadFile } from "api/until";
+import { TYPEFILE, uploadFile } from "api/until";
 import { useAppDispatch } from "store";
 import { setUser } from "store/user";
 import TagsRole from "components/views/TagsRole";
@@ -55,7 +55,7 @@ const ModalProfile = ({
       });
       let fileUrl;
       if (avatar) {
-        fileUrl = await uploadFile(avatar);
+        fileUrl = await uploadFile(avatar, TYPEFILE.AVATAR);
         if (!fileUrl) {
           onLoading({
             type: "UPDATE_USER",

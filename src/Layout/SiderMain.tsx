@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState, useCallback } from "react";
 import { Avatar, Badge, Dropdown, Layout, Menu, MenuProps, Spin, theme } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import { UserOutlined, UsergroupAddOutlined } from "@ant-design/icons";
@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { resetMessUnread, setMessages } from "store/chat";
 import { LoadingOutlined } from "@ant-design/icons";
+import { setRooms } from "store/room";
 const { Sider } = Layout;
 
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
@@ -33,15 +34,16 @@ const SiderMain = () => {
   const [openModalProfile, toggleOpenModalProfile] = useToggle(false);
   const { conservation } = useAppSelector((state) => state.app);
   const { user } = useAppSelector((state) => state.user) as any;
+  const { rooms } = useAppSelector((state) => state.room) as any
   const dispatch = useAppDispatch();
   const isCallback = useCallBackApi("ADD_MEMBERS");
   const isLoadmore = useLoading("LOAD_MORE")
   const [page, setPage] = useState<number>(1)
   const { onLoading } = useFnLoading();
-  const [rooms, setRooms] = useState<{ rooms: Array<any>, total: number }>({
-    rooms: [],
-    total: 0
-  });
+  // const [rooms, setRooms] = useState<{ rooms: Array<any>, total: number }>({
+  //   rooms: [],
+  //   total: 0
+  // });
   const navigate = useNavigate();
   const refDisplay = useRef<any>();
 
@@ -79,10 +81,10 @@ const SiderMain = () => {
           return 0;
         });
 
-        setRooms({
+        dispatch(setRooms({
           ...rooms,
           rooms: updatedRooms
-        });
+        }));
       });
     }
     return () => {
@@ -105,6 +107,10 @@ const SiderMain = () => {
       await logout();
       dispatch(changeConservation(false));
       dispatch(setMessages([]))
+      dispatch(setRooms({
+        rooms: [],
+        total: 0
+      }))
       navigate("/login");
       localStorage.clear();
     } catch (error) {
@@ -133,11 +139,11 @@ const SiderMain = () => {
         }
         return room;
       });
-      setRooms({
+      dispatch(setRooms({
         ...rooms,
         rooms:
           updatedRooms
-      });
+      }));
 
       await readMess({ room: item._id });
     } catch (error) {
@@ -145,13 +151,13 @@ const SiderMain = () => {
     }
   };
 
-  const fetchRooms = async (page: number) => {
+  const fetchRooms = useCallback(async (page: number) => {
     try {
       const res = await getAll(user?.roles[0]?.code, page);
-      setRooms({
+      dispatch(setRooms({
         total: res?.data?.total,
         rooms: [...rooms.rooms, ...res?.data?.rooms]
-      });
+      }));
     } catch (error) {
       console.log(error);
 
@@ -164,7 +170,7 @@ const SiderMain = () => {
       type: "LOAD_MORE",
       value: false
     })
-  };
+  }, []);
 
   useEffect(() => {
     const container = refDisplay.current;
@@ -273,7 +279,9 @@ const SiderMain = () => {
 
             {item?.lastMessage && (
               <div className="msg">
-                {item?.lastMessage?.sender?.name}: {item?.lastMessage?.content}
+                {item?.lastMessage?.sender?.name}: {!item?.lastMessage?.content ? "Đã gửi 1 file" :
+                  item?.lastMessage?.content
+                }
               </div>
             )}
           </div>
@@ -302,10 +310,10 @@ const SiderMain = () => {
         fetchRooms={fetchRooms}
         isModalOpen={openModal}
         handleCancel={toggleOpenModal}
-        onupdateRoom={(room: any) => setRooms({
+        onupdateRoom={(room: any) => dispatch(setRooms({
           ...rooms,
           rooms: [room, ...rooms.rooms]
-        })}
+        }))}
       />
       <ModalProfile
         isModalOpen={openModalProfile}

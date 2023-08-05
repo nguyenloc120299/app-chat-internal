@@ -23,6 +23,7 @@ import Messages from "components/messages/Messages";
 import LightBoxFile from "components/Modals/LightBoxFile";
 import useToggle from "hooks/useToggle";
 import { scrollToBottom, scrollToElement } from "helpers/scrollBottom";
+import nomess from 'assets/images/no-message.png'
 moment.locale("vi");
 const Home = () => {
   const { handleLeaveRoom } = useSocket();
@@ -190,7 +191,10 @@ const Home = () => {
           ))
         ) : (
           <div className="text-intro">
-            Gửi tin nhắn để có thể trò chuyện 🤭🤭
+            <img src={nomess} alt="" style={{
+              width: "100px",
+              height: "100px"
+            }} />
           </div>
         )}
 

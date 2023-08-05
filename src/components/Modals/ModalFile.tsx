@@ -21,7 +21,7 @@ import { RcFile } from "antd/es/upload";
 import axios from "axios";
 import { useSocket } from "hooks/useSocket";
 import { isMobile } from "mobile-device-detect";
-import { uploadFile } from "api/until";
+import { TYPEFILE, uploadFile } from "api/until";
 
 type Props_Type = {
   isModalOpen: boolean;
@@ -78,7 +78,7 @@ const ModalFile = ({
         })
       );
       handleCancel();
-      const fileUrl = await uploadFile(file);
+      const fileUrl = await uploadFile(file, TYPEFILE.MESSAGE);
       if (!fileUrl)
         return message.warning("Có lỗi xảy ra vui lòng thử lại sao");
 
@@ -96,7 +96,7 @@ const ModalFile = ({
 
       const res = await sendMess(sendData);
       handleSendMessage({
-        content: contentMsg,
+        content: !contentMsg ? "Đã gửi 1 file" : contentMsg,
         createdAt: new Date(),
         roomId: conservation?._id,
         role: user?.roles[0],

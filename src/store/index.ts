@@ -4,12 +4,13 @@ import type { TypedUseSelectorHook } from 'react-redux'
 import appReducer from "./app";
 import userReducer from './user'
 import chatReducer from './chat'
-
+import roomReducer from './room'
 const store = configureStore({
   reducer: {
     app: appReducer,
     user: userReducer,
     chat: chatReducer,
+    room: roomReducer
   },
 });
 
