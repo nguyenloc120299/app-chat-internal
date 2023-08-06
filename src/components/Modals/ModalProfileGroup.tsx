@@ -20,6 +20,8 @@ import { deleteRoom, updateMember } from "api/room";
 import { changeConservation } from "store/app";
 import { useCallBackApi, useFnCallbackApi } from "hooks/useCallback";
 import { setRooms } from "store/room";
+import { useSocket } from "hooks/useSocket";
+import { ROLES } from "types/global";
 type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
@@ -30,6 +32,7 @@ type Props_Type = {
 const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) => {
 
   const { conservation } = useAppSelector((state) => state.app) as any
+  const { user } = useAppSelector((state) => state.user) as any
   const { rooms } = useAppSelector((state) => state.room) as any
   const [avatarRoom, setAvatarRoom] = useState<any>(null)
   const [nameRoom, setNameRoom] = useState("")
@@ -38,7 +41,7 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
   const { onCallback } = useFnCallbackApi()
   const isLoading = useLoading("ADD_ROOM")
   const isCallBack = useCallBackApi("ADD_MEMBERS")
-
+  const { handleRemoveRoom } = useSocket()
   useEffect(() => {
     setNameRoom(conservation?.nameRoom)
   }, [conservation, isModalOpen])
@@ -112,11 +115,8 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
     })
     try {
       await deleteRoom(room)
-      const newRooms = rooms?.rooms.filter((r: any) => r?._id != room)
-      dispatch(setRooms({
-        ...rooms,
-        rooms: newRooms
-      }))
+
+      handleRemoveRoom(room)
       dispatch(changeConservation(false))
       localStorage.removeItem('conservation')
       message.success("Bạn đã xóa nhóm")
@@ -176,11 +176,15 @@ const ModalGroupProfile = ({ isModalOpen, handleCancel, handleOk }: Props_Type) 
           </div>
         </Col>
       </Row>
-      <Row style={{ margin: "20px 0" }}>
-        <Tag color="red" style={{
-          cursor: "pointer"
-        }} onClick={() => handleDeleteRoom(conservation?._id)}>Xóa nhóm</Tag>
-      </Row>
+      {
+        user?.roles[0]?.code === ROLES.ADMIN &&
+
+        <Row style={{ margin: "20px 0" }}>
+          <Tag color="red" style={{
+            cursor: "pointer"
+          }} onClick={() => handleDeleteRoom(conservation?._id)}>Xóa nhóm</Tag>
+        </Row>
+      }
     </ModalStyled>
   );
 };

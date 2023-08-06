@@ -22,11 +22,15 @@ export const useSocket = () => {
         socket.emit('sendMessage', data)
     }
 
+    const handleRemoveRoom = (roomId: string) => {
+        socket.emit("removeRoom", { roomId })
+    }
 
     return {
         handleJoinRoom,
         handleEscapeRoom,
         handleSendMessage,
-        handleLeaveRoom
+        handleLeaveRoom,
+        handleRemoveRoom
     }
 }

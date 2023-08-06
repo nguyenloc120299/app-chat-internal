@@ -39,6 +39,7 @@ const SiderMain = () => {
   const isCallback = useCallBackApi("ADD_MEMBERS");
   const isLoadmore = useLoading("LOAD_MORE")
   const [page, setPage] = useState<number>(1)
+  const [search, setSearch] = useState('')
   const { onLoading } = useFnLoading();
   // const [rooms, setRooms] = useState<{ rooms: Array<any>, total: number }>({
   //   rooms: [],
@@ -47,6 +48,18 @@ const SiderMain = () => {
   const navigate = useNavigate();
   const refDisplay = useRef<any>();
 
+  useEffect(() => {
+    if (socket)
+      socket.on("removeRoomClient", (data: { roomId: string }) => {
+
+        const newRooms = rooms?.rooms.filter((r: any) => r?._id != data.roomId)
+
+        dispatch(setRooms({
+          ...rooms,
+          rooms: newRooms
+        }))
+      })
+  }, [socket, rooms])
   //socket
   useEffect(() => {
     if (socket) {
@@ -151,9 +164,9 @@ const SiderMain = () => {
     }
   };
 
-  const fetchRooms = useCallback(async (page: number) => {
+  const fetchRooms = useCallback(async (page: number, role: ROLES, search?: string) => {
     try {
-      const res = await getAll(user?.roles[0]?.code, page);
+      const res = await getAll(role, page, search);
       dispatch(setRooms({
         total: res?.data?.total,
         rooms: [...rooms.rooms, ...res?.data?.rooms]
@@ -225,7 +238,7 @@ const SiderMain = () => {
 
   useEffect(() => {
     if (user) {
-      fetchRooms(page);
+      fetchRooms(page, user?.roles[0]?.code);
       if (page > 1) return
       if (localStorage.getItem("conservation") && socket) {
         handleJoinRoom({
@@ -344,6 +357,9 @@ const SiderMain = () => {
           <SearchInput
             placeholder="Tìm kiếm nhóm"
             allowClear
+            value={search}
+            onChange={(e: any) => setSearch(e?.target?.value)}
+            onSearch={() => fetchRooms(1, user?.roles[0]?.code, search)}
             size="large"
           />
           {user?.roles[0]?.code === ROLES.ADMIN && (

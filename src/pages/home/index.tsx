@@ -23,7 +23,10 @@ import Messages from "components/messages/Messages";
 import LightBoxFile from "components/Modals/LightBoxFile";
 import useToggle from "hooks/useToggle";
 import { scrollToBottom, scrollToElement } from "helpers/scrollBottom";
-import nomess from 'assets/images/no-message.png'
+import nomess from 'assets/images/waiting- chat.svg'
+import bgChat from 'assets/images/wallpaper.jpg'
+import { useLocale } from "antd/es/locale";
+import { Spin } from "antd";
 moment.locale("vi");
 const Home = () => {
   const { handleLeaveRoom } = useSocket();
@@ -37,6 +40,7 @@ const Home = () => {
   const { conservation } = useAppSelector((state) => state.app) as any;
   const { user } = useAppSelector((state) => state.user) as any;
   const { onLoading } = useFnLoading();
+  const isFetchAllMess = useLoading("FETCH_ALL_MESS")
   const isLoading = useLoading("MESSAGES");
   const [page, setPage] = useState(1);
   const [isLoadMore, setIsLoadMore] = useState(false);
@@ -128,6 +132,10 @@ const Home = () => {
   };
 
   const fetchAllMessages = async (conservation: any) => {
+    onLoading({
+      type: "FETCH_ALL_MESS",
+      value: true
+    })
     dispatch(resetMessages([]));
 
     try {
@@ -140,6 +148,10 @@ const Home = () => {
     } catch (error) {
       console.log(error);
     }
+    onLoading({
+      type: "FETCH_ALL_MESS",
+      value: false
+    })
   };
 
   const loadMoreMessage = async (conservation: any, page: number) => {
@@ -180,7 +192,9 @@ const Home = () => {
           handleCloseLightBox={handleCloseLightBox}
         />
       )}
+
       <div className="content" ref={refDisplay} id="scrollableDiv">
+
         {user && messages?.length ? (
           messages?.map((item: any) => (
             <Messages
@@ -190,10 +204,10 @@ const Home = () => {
             />
           ))
         ) : (
+
           <div className="text-intro">
             <img src={nomess} alt="" style={{
-              width: "100px",
-              height: "100px"
+              width: "100%"
             }} />
           </div>
         )}
@@ -226,10 +240,13 @@ const HomeStyled: any = styled.div`
 
   .content {
     flex: 1;
-    background: #cccc;
+    background:url(${bgChat});
     padding: 20px;
     overflow-y: scroll;
     position: relative;
+        background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     .mess-unread {
       text-align: center;
       font-weight: 500;
