@@ -6,5 +6,5 @@ export const colors = {
 };
 export const LayoutStyled = styled(Layout)`
   height: 100%;
-  
+ 
 `;

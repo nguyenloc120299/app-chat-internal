@@ -196,6 +196,19 @@ const SiderInfo = () => {
 
 export default SiderInfo;
 const SiderInfoStyled = styled(Sider)`
+height: 100vh;
+overflow: hidden;
+ &::-webkit-scrollbar {
+      width: 7px;
+    }
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      height: 50px;
+      border-radius: 3px;
+    }
   .ant-layout-header {
     border-bottom: 1px solid #cccc;
     h3 {

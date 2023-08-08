@@ -141,9 +141,14 @@ const ModalProfile = ({
       {isShow ? (
         <div className="info">
           <div className="des">
+            Họ tên:
+            <span>{user?.name}</span>
+          </div>
+          <div className="des">
             Ngày tham gia:
             <span>{moment(user?.createdAt).format("DD/MM/YYYY")}</span>
           </div>
+
           <div className="des">
             Số điện thoai:
             <span>{user?.phone}</span>
@@ -151,25 +156,25 @@ const ModalProfile = ({
           <div className="des">
             Telegram:
             <span>
-              <a href={user?.linkTelegram} target={"_blank"}>
-                {user?.linkTelegram}
+              <a href={user?.linkTelegram || "#"} target={"_blank"}>
+                {user?.linkTelegram || "Chưa có thông tin"}
               </a>
             </span>
           </div>
           <div className="des">
             Facebook:
             <span>
-              <a href={user?.linkFaceBook} target={"_blank"}>
-                {user?.linkFaceBook}
+              <a href={user?.linkFaceBook || "#"} target={"_blank"}>
+                {user?.linkFaceBook || "Chưa có thông tin"}
               </a>
             </span>
           </div>
-          {/* <div className="des">
+          <div className="des">
             Vai trò:
             <span>
-              <TagsRole role={user?.role}/>
+              <TagsRole role={user?.roles[0]?.code} />
             </span>
-          </div> */}
+          </div>
         </div>
       ) : (
         <FormStyled
