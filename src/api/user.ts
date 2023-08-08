@@ -30,7 +30,7 @@ export const refresh = async () => {
 export const getUsers = async (data: Quer_User) => {
   const { page, pageSize, roleName, search } = data;
   const res = await requestService.get(
-    `/room/users?page=${page}&pageSize=${pageSize}&roleName=${roleName}&search=${search}`
+    `/room/users?page=${page}&pageSize=${pageSize}&limit=1000&roleName=${roleName}&search=${search}`
   );
   return res.data;
 };
