@@ -44,6 +44,7 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [isLoadMore, setIsLoadMore] = useState(false);
   const [totalMessage, setTotalMessages] = useState(0);
+  const [isScrollBottom, setIsScrollBottom] = useState(false)
 
   ///listen event socket
   useEffect(() => {
@@ -86,6 +87,26 @@ const Home = () => {
     setFileSelect(item);
     toggleLightBox();
   };
+
+  useEffect(() => {
+    const container = refDisplay.current;
+
+    const handleScroll = () => {
+      if (container.scrollTop >= container.scrollHeight - container.clientHeight - 100) {
+        setIsScrollBottom(false);
+      } else {
+        setIsScrollBottom(true);
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll);
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+
 
   useEffect(() => {
     const container = refDisplay.current;
@@ -206,7 +227,7 @@ const Home = () => {
           <div className="text-intro">
             <img src={nomess} alt="" style={{
               width: "100%"
-            }} /> 
+            }} />
           </div>
         )}
 
