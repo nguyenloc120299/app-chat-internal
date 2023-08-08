@@ -47,7 +47,7 @@ const SiderMain = () => {
   const { handleJoinRoom, handleEscapeRoom } = useSocket();
   const [openModal, toggleOpenModal] = useToggle(false);
   const [openModalProfile, toggleOpenModalProfile] = useToggle(false);
-  const { conservation } = useAppSelector((state) => state.app);
+  const { conservation } = useAppSelector((state) => state.app) as any;
   const { user } = useAppSelector((state) => state.user) as any;
   const { rooms } = useAppSelector((state) => state.room) as any;
   const dispatch = useAppDispatch();
@@ -66,8 +66,9 @@ const SiderMain = () => {
   useEffect(() => {
     if (socket)
       socket.on("removeRoomClient", (data: { roomId: string }) => {
+        if (conservation?._id !== data.roomId)
+          localStorage.removeItem("conservation");
         const newRooms = rooms?.rooms.filter((r: any) => r?._id != data.roomId);
-
         dispatch(
           setRooms({
             ...rooms,
@@ -75,7 +76,7 @@ const SiderMain = () => {
           })
         );
       });
-  }, [socket, rooms]);
+  }, [socket, rooms, conservation]);
   //socket
 
   useEffect(() => {
@@ -337,7 +338,7 @@ const SiderMain = () => {
 
               {item?.lastMessage && (
                 <div className="msg">
-                  { item?.lastMessage?.sender?.roles[0]?.code}:{" "}
+                  {item?.lastMessage?.sender?.roles[0]?.code}:{" "}
                   {!item?.lastMessage?.content
                     ? "Đã gửi 1 file"
                     : item?.lastMessage?.content}
