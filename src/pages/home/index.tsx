@@ -24,9 +24,8 @@ import LightBoxFile from "components/Modals/LightBoxFile";
 import useToggle from "hooks/useToggle";
 import { scrollToBottom, scrollToElement } from "helpers/scrollBottom";
 import nomess from 'assets/images/waiting- chat.svg'
-import bgChat from 'assets/images/wallpaper.jpg'
-import { useLocale } from "antd/es/locale";
-import { Spin } from "antd";
+import bgChat from 'assets/images/wallpaper.png'
+
 moment.locale("vi");
 const Home = () => {
   const { handleLeaveRoom } = useSocket();
@@ -204,11 +203,10 @@ const Home = () => {
             />
           ))
         ) : (
-
           <div className="text-intro">
             <img src={nomess} alt="" style={{
               width: "100%"
-            }} />
+            }} /> 
           </div>
         )}
 
@@ -240,11 +238,12 @@ const HomeStyled: any = styled.div`
 
   .content {
     flex: 1;
-    background:url(${bgChat});
+    /* background-image: url(${bgChat}); */
+    background: #ccc;
     padding: 20px;
     overflow-y: scroll;
     position: relative;
-        background-repeat: no-repeat;
+    background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     .mess-unread {
@@ -293,8 +292,17 @@ const HomeStyled: any = styled.div`
       font-weight: 500;
       text-align: center;
     }
+
     &::-webkit-scrollbar {
-      display: none;
+      width: 7px;
+    }
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      height: 50px;
+      border-radius: 3px;
     }
     .loading {
       position: absolute;
