@@ -1,5 +1,20 @@
-import React, { useContext, useEffect, useRef, useState, useCallback } from "react";
-import { Avatar, Badge, Dropdown, Layout, Menu, MenuProps, Spin, theme } from "antd";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
+import {
+  Avatar,
+  Badge,
+  Dropdown,
+  Layout,
+  Menu,
+  MenuProps,
+  Spin,
+  theme,
+} from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import { UserOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import styled from "styled-components";
@@ -34,12 +49,12 @@ const SiderMain = () => {
   const [openModalProfile, toggleOpenModalProfile] = useToggle(false);
   const { conservation } = useAppSelector((state) => state.app);
   const { user } = useAppSelector((state) => state.user) as any;
-  const { rooms } = useAppSelector((state) => state.room) as any
+  const { rooms } = useAppSelector((state) => state.room) as any;
   const dispatch = useAppDispatch();
   const isCallback = useCallBackApi("ADD_MEMBERS");
-  const isLoadmore = useLoading("LOAD_MORE")
-  const [page, setPage] = useState<number>(1)
-  const [search, setSearch] = useState('')
+  const isLoadmore = useLoading("LOAD_MORE");
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState("");
   const { onLoading } = useFnLoading();
   // const [rooms, setRooms] = useState<{ rooms: Array<any>, total: number }>({
   //   rooms: [],
@@ -51,16 +66,33 @@ const SiderMain = () => {
   useEffect(() => {
     if (socket)
       socket.on("removeRoomClient", (data: { roomId: string }) => {
+        const newRooms = rooms?.rooms.filter((r: any) => r?._id != data.roomId);
 
-        const newRooms = rooms?.rooms.filter((r: any) => r?._id != data.roomId)
-
-        dispatch(setRooms({
-          ...rooms,
-          rooms: newRooms
-        }))
-      })
-  }, [socket, rooms])
+        dispatch(
+          setRooms({
+            ...rooms,
+            rooms: newRooms,
+          })
+        );
+      });
+  }, [socket, rooms]);
   //socket
+
+  useEffect(() => {
+    if (socket && user)
+      socket.on("addRoomClient", (room: any) => {
+        room?.members.forEach((r: any) => {
+          if (r?._id === user?._id)
+            dispatch(
+              setRooms({
+                ...rooms,
+                rooms: [room, ...rooms.rooms],
+              })
+            );
+        });
+      });
+  }, [socket, user, rooms]);
+
   useEffect(() => {
     if (socket) {
       socket.on("conservation", (newPost: any) => {
@@ -94,10 +126,12 @@ const SiderMain = () => {
           return 0;
         });
 
-        dispatch(setRooms({
-          ...rooms,
-          rooms: updatedRooms
-        }));
+        dispatch(
+          setRooms({
+            ...rooms,
+            rooms: updatedRooms,
+          })
+        );
       });
     }
     return () => {
@@ -119,11 +153,13 @@ const SiderMain = () => {
     try {
       await logout();
       dispatch(changeConservation(false));
-      dispatch(setMessages([]))
-      dispatch(setRooms({
-        rooms: [],
-        total: 0
-      }))
+      dispatch(setMessages([]));
+      dispatch(
+        setRooms({
+          rooms: [],
+          total: 0,
+        })
+      );
       navigate("/login");
       localStorage.clear();
     } catch (error) {
@@ -133,7 +169,7 @@ const SiderMain = () => {
 
   const handleChangeConservation = async (item: any) => {
     dispatch(changeConservation(item));
-    dispatch(resetMessUnread())
+    dispatch(resetMessUnread());
     localStorage.setItem("conservation", JSON.stringify(item));
     try {
       handleJoinRoom({
@@ -152,11 +188,12 @@ const SiderMain = () => {
         }
         return room;
       });
-      dispatch(setRooms({
-        ...rooms,
-        rooms:
-          updatedRooms
-      }));
+      dispatch(
+        setRooms({
+          ...rooms,
+          rooms: updatedRooms,
+        })
+      );
 
       await readMess({ room: item._id });
     } catch (error) {
@@ -164,48 +201,55 @@ const SiderMain = () => {
     }
   };
 
-  const fetchRooms = useCallback(async (page: number, role: ROLES, search?: string) => {
-    try {
-      const res = await getAll(role, page, search);
-      dispatch(setRooms({
-        total: res?.data?.total,
-        rooms: [...rooms.rooms, ...res?.data?.rooms]
-      }));
-    } catch (error) {
-      console.log(error);
-
-    }
-    onLoading({
-      type: "FETCH",
-      value: false,
-    });
-    onLoading({
-      type: "LOAD_MORE",
-      value: false
-    })
-  }, []);
+  const fetchRooms = useCallback(
+    async (page: number, role: ROLES, search?: string) => {
+      try {
+        const res = await getAll(role, page, search);
+        dispatch(
+          setRooms({
+            total: res?.data?.total,
+            rooms: [...rooms.rooms, ...res?.data?.rooms],
+          })
+        );
+      } catch (error) {
+        console.log(error);
+      }
+      onLoading({
+        type: "FETCH",
+        value: false,
+      });
+      onLoading({
+        type: "LOAD_MORE",
+        value: false,
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     const container = refDisplay.current;
     let isScrollingUp = false;
 
     const handleTouchMove = (event: TouchEvent) => {
-      if (rooms?.total === rooms.rooms.length) return
+      if (rooms?.total === rooms.rooms.length) return;
       const containerHeight = container.clientHeight;
       const maxScrollHeight = container.scrollHeight - containerHeight;
       const currentScrollPosition = container.scrollTop;
-      if (event.touches[0].clientY > containerHeight / 2 && currentScrollPosition >= maxScrollHeight - 10) {
+      if (
+        event.touches[0].clientY > containerHeight / 2 &&
+        currentScrollPosition >= maxScrollHeight - 10
+      ) {
         onLoading({
           type: "LOAD_MORE",
-          value: true
-        })
+          value: true,
+        });
         setPage(page + 1);
       }
       isScrollingUp = event.touches[0].clientY < containerHeight / 2;
     };
 
     const handleWheel = (event: any) => {
-      if (rooms?.total === rooms.rooms.length) return
+      if (rooms?.total === rooms.rooms.length) return;
       const containerHeight = container.clientHeight;
       const maxScrollHeight = container.scrollHeight - containerHeight;
       const currentScrollPosition = container.scrollTop;
@@ -213,9 +257,9 @@ const SiderMain = () => {
       if (event.deltaY > 0 && currentScrollPosition >= maxScrollHeight - 10) {
         onLoading({
           type: "LOAD_MORE",
-          value: true
-        })
-        setPage(page + 1)
+          value: true,
+        });
+        setPage(page + 1);
       }
       isScrollingUp = event.deltaY < 0;
     };
@@ -226,9 +270,9 @@ const SiderMain = () => {
       setTimeout(() => {
         onLoading({
           type: "LOAD_MORE",
-          value: false
-        })
-      }, 5000)
+          value: false,
+        });
+      }, 5000);
     }
     return () => {
       container.removeEventListener("wheel", handleWheel);
@@ -239,7 +283,7 @@ const SiderMain = () => {
   useEffect(() => {
     if (user) {
       fetchRooms(page, user?.roles[0]?.code);
-      if (page > 1) return
+      if (page > 1) return;
       if (localStorage.getItem("conservation") && socket) {
         handleJoinRoom({
           roomId: JSON.parse(localStorage.getItem("conservation") as any)?._id,
@@ -255,53 +299,56 @@ const SiderMain = () => {
     }
   }, [user, socket, isCallback, page]);
 
-  const items: MenuProps["items"] = rooms.rooms.map((item: any, index: number) => ({
-    key: item?._id,
-    label: (
-      <div
-        className="conservation"
-        onClick={() => handleChangeConservation(item)}
-      >
-        <div className="content">
-          <div>
-            <Badge count={totalUnreadMess(item?.unReadMessage)}>
-              <Avatar
-                size={60}
-                icon={
-                  item?.avatarRoom ? (
-                    <img src={item?.avatarRoom} />
-                  ) : (
-                    <UserOutlined />
-                  )
-                }
-              />
-            </Badge>
-          </div>
-
-          <div className="right">
+  const items: MenuProps["items"] = rooms.rooms.map(
+    (item: any, index: number) => ({
+      key: item?._id,
+      label: (
+        <div
+          className="conservation"
+          onClick={() => handleChangeConservation(item)}
+        >
+          <div className="content">
             <div>
-              <div className="name-room">
-                <div className="name">{item?.nameRoom}</div>
-                {item?.lastMessage && (
-                  <div className="time-now">
-                    {moment(new Date(item?.lastMessage?.createdAt)).fromNow()}
-                  </div>
-                )}
-              </div>
+              <Badge count={totalUnreadMess(item?.unReadMessage)}>
+                <Avatar
+                  size={60}
+                  icon={
+                    item?.avatarRoom ? (
+                      <img src={item?.avatarRoom} />
+                    ) : (
+                      <UserOutlined />
+                    )
+                  }
+                />
+              </Badge>
             </div>
 
-            {item?.lastMessage && (
-              <div className="msg">
-                {item?.lastMessage?.sender?.name}: {!item?.lastMessage?.content ? "Đã gửi 1 file" :
-                  item?.lastMessage?.content
-                }
+            <div className="right">
+              <div>
+                <div className="name-room">
+                  <div className="name">{item?.nameRoom}</div>
+                  {item?.lastMessage && (
+                    <div className="time-now">
+                      {moment(new Date(item?.lastMessage?.createdAt)).fromNow()}
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+
+              {item?.lastMessage && (
+                <div className="msg">
+                  { item?.lastMessage?.sender?.roles[0]?.code}:{" "}
+                  {!item?.lastMessage?.content
+                    ? "Đã gửi 1 file"
+                    : item?.lastMessage?.content}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    ),
-  }));
+      ),
+    })
+  );
 
   const menu = (
     <Menu>
@@ -316,17 +363,20 @@ const SiderMain = () => {
       style={{
         height: "100vh",
         backgroundColor: token.token.colorBgContainer,
-
       }}
     >
       <ModalAddGroup
         fetchRooms={fetchRooms}
         isModalOpen={openModal}
         handleCancel={toggleOpenModal}
-        onupdateRoom={(room: any) => dispatch(setRooms({
-          ...rooms,
-          rooms: [room, ...rooms.rooms]
-        }))}
+        onupdateRoom={(room: any) =>
+          dispatch(
+            setRooms({
+              ...rooms,
+              rooms: [room, ...rooms.rooms],
+            })
+          )
+        }
       />
       <ModalProfile
         isModalOpen={openModalProfile}
@@ -376,7 +426,7 @@ const SiderMain = () => {
             mode="inline"
             defaultSelectedKeys={[
               JSON.parse(localStorage.getItem("conservation") as any)?._id ||
-              "",
+                "",
             ]}
             items={items}
           />
@@ -390,12 +440,13 @@ const SiderMain = () => {
             Bạn chưa được thêm vào group 😍😍
           </div>
         )}
-        {
-          isLoadmore &&
-          <div style={{ width: "100%", display: 'flex', justifyContent: 'center' }}>
+        {isLoadmore && (
+          <div
+            style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          >
             <Spin indicator={antIcon} />
           </div>
-        }
+        )}
       </ContentSider>
     </SiderMainStyled>
   );
@@ -406,10 +457,10 @@ const ContentSider = styled(Content)`
   height: 100%;
   overflow-y: scroll;
   padding-bottom: 50px;
-  &::-webkit-scrollbar{
+  &::-webkit-scrollbar {
     display: none;
   }
-`
+`;
 const SiderMainStyled = styled(Sider)`
   padding: 20px 0;
   z-index: 999;
@@ -427,7 +478,6 @@ const SearchInput = styled(Search)`
   width: unset;
 `;
 const MenuStyled = styled(Menu)`
-
   .ant-menu-item {
     height: 70px;
     line-height: 25px;
@@ -461,7 +511,6 @@ const MenuStyled = styled(Menu)`
         .name-room {
           display: flex;
           justify-content: space-between;
-        
         }
         .msg {
           font-weight: 400;

@@ -7,6 +7,7 @@ import { AudioMutedOutlined } from "@ant-design/icons";
 import { useAppSelector } from "store";
 import moment from "moment";
 import { Avatar } from "antd";
+import { ROLES } from "types/global";
 
 type Props_type = {
   message: any;
@@ -17,20 +18,20 @@ const Messages = ({ message, handleLightBox, messUnread }: Props_type) => {
   const { user } = useAppSelector((state) => state.user) as any;
   return (
     <>
-      {
-        (
-          message?._id === messUnread?._id &&
-          user && message?.sender?._id !== user?._id
-        )
-        &&
-        <div className="mess-unread">Tin nhắn chưa đọc</div>
-      }
+      {message?._id === messUnread?._id &&
+        user &&
+        message?.sender?._id !== user?._id && (
+          <div className="mess-unread">Tin nhắn chưa đọc</div>
+        )}
       {message?.sender?._id === user?._id ? (
         <div className="message-sender" id={message?._id}>
           <div className="main-msg">
             <div className="content-msg">
               <div className="auth">
-                {message?.sender?.name}
+                {user?.roles[0]?.code === ROLES.ADMIN ||
+                message?.role === ROLES.ADMIN
+                  ? message?.sender?.name
+                  : message?.sender?._id}
                 <TagsRole role={message?.role} />
               </div>
               <div> {message?.content}</div>
@@ -92,7 +93,10 @@ const Messages = ({ message, handleLightBox, messUnread }: Props_type) => {
             </div>
             <div className="content-msg">
               <div className="auth">
-                {message?.sender?.name}
+                {user?.roles[0]?.code === ROLES.ADMIN ||
+                message?.role === ROLES.ADMIN
+                  ? message?.sender?.name
+                  : message?.sender?._id}
                 <TagsRole role={message?.role} />
               </div>
               <div>{message?.content}</div>

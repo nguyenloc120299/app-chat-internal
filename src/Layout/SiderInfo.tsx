@@ -15,6 +15,7 @@ import { ROLES } from "types/global";
 import { pushNotification } from "api/chat";
 import { resetMessUnread, updateMessages } from "store/chat";
 import { useSocket } from "hooks/useSocket";
+import TagsRole from "components/views/TagsRole";
 const { Sider, Header, Content } = Layout;
 const SiderInfo = () => {
   const token = theme.useToken();
@@ -28,8 +29,8 @@ const SiderInfo = () => {
   const { onCallback } = useFnCallbackApi();
   const isLoading = useLoading("ADD_MEMBERS");
   const isCallback = useCallBackApi("ADD_MEMBERS");
-  const dispatch = useAppDispatch()
-  const { handleSendMessage } = useSocket()
+  const dispatch = useAppDispatch();
+  const { handleSendMessage } = useSocket();
   const onChange = (checkedValues: CheckboxValueType[]) => {
     setMembers(checkedValues);
   };
@@ -61,7 +62,7 @@ const SiderInfo = () => {
   };
   const pushNotifications = async (member: any) => {
     try {
-      dispatch(resetMessUnread())
+      dispatch(resetMessUnread());
       dispatch(
         updateMessages({
           content: "@" + member?.name,
@@ -75,7 +76,7 @@ const SiderInfo = () => {
         titleNotification: "Union Digital Chat ",
         userId: member?._id,
         role: user?.roles[0]?.code,
-        room: conservation?._id
+        room: conservation?._id,
       });
 
       handleSendMessage({
@@ -84,7 +85,7 @@ const SiderInfo = () => {
         roomId: conservation?._id,
         role: user?.roles[0]?.code,
         sender: user,
-        _id: res?.data?._id
+        _id: res?.data?._id,
       });
     } catch (error) {
       console.log(error);
@@ -151,7 +152,9 @@ const SiderInfo = () => {
                   toggleOpenModal();
                 }}
               />
-              <div className="name">{item?.name}</div>
+              <div className="name">
+                <TagsRole role={item?.roles[0]?.code} />
+              </div>
               <BellOutlined
                 style={{ fontSize: "20px", color: "#666" }}
                 onClick={() => pushNotifications(item)}
@@ -211,7 +214,7 @@ const SiderInfoStyled = styled(Sider)`
     .list-member {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 10px;
       padding: 10px 0;
       .member {
         display: flex;

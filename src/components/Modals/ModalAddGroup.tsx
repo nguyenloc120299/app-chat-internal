@@ -18,6 +18,7 @@ import ListUsers from "components/views/ListUsers";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { FileUploader } from "react-drag-drop-files";
 import { TYPEFILE, uploadFile } from "api/until";
+import { useSocket } from "hooks/useSocket";
 type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
@@ -29,6 +30,7 @@ type Props_Type = {
 
 const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms, onupdateRoom }: Props_Type) => {
   const [avatarRoom, setAvatarRoom] = useState<any>(null)
+  const {handleAddRoom} = useSocket()
   const [members, setMembers] = useState<any>([])
   const [nameRoom, setNameRoom] = useState('')
   const { onLoading } = useFnLoading()
@@ -66,7 +68,8 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms, onupda
       })
       setMembers([])
       message.success("Đã thêm room mới")
-      onupdateRoom(res?.data)
+      // onupdateRoom(res?.data)
+      handleAddRoom(res?.data)
       handleCancel()
 
     } catch (error) {
