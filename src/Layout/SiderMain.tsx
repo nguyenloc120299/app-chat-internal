@@ -413,7 +413,8 @@ const SiderMain = () => {
             onSearch={() => fetchRooms(1, user?.roles[0]?.code, search)}
             size="large"
           />
-          {user?.roles[0]?.code === ROLES.ADMIN && (
+          {(user?.roles[0]?.code === ROLES.ADMIN ||
+            user?.roles[0]?.code === ROLES.EMPLOYEE) && (
             <UsergroupAddOutlined
               onClick={toggleOpenModal}
               style={{ fontSize: "25px", color: "#aaa", cursor: "pointer" }}
