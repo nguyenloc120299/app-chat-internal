@@ -153,7 +153,7 @@ const SiderInfo = () => {
                 }}
               />
               <div className="name">
-                <TagsRole role={item?.roles[0]?.code} />
+                <TagsRole role={item?.roles?.length && item?.roles[0]?.code} />
               </div>
               <BellOutlined
                 style={{ fontSize: "20px", color: "#666" }}
