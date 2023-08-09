@@ -25,9 +25,9 @@ export const readMess = async ({ room }: any) => {
 }
 
 export const create = async (roomData: RoomData) => {
-    const res = await requestService.post('/room/create', {
-        data: roomData
-    })
+    const res = await requestService.post("/room-manager/create", {
+      data: roomData,
+    });
     return res.data
 }
 
