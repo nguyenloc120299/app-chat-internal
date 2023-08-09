@@ -1,7 +1,13 @@
 import { getMessages } from "api/chat";
 import FooterChat from "components/FooterChat";
 import { isMobile } from "mobile-device-detect";
-import React, { TouchEvent, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  TouchEvent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useAppDispatch, useAppSelector } from "store";
 import styled from "styled-components";
 import { colors } from "styles/theme";
@@ -10,6 +16,7 @@ import "moment/locale/vi";
 import { useFnLoading, useLoading } from "hooks/useLoading";
 import { DataContext } from "context/globalSocket";
 import { MESSAGE } from "types/joinRoom";
+import { ArrowDownOutlined } from "@ant-design/icons";
 import { useSocket } from "hooks/useSocket";
 import {
   loadMoreMessUpdate,
@@ -23,8 +30,8 @@ import Messages from "components/messages/Messages";
 import LightBoxFile from "components/Modals/LightBoxFile";
 import useToggle from "hooks/useToggle";
 import { scrollToBottom, scrollToElement } from "helpers/scrollBottom";
-import nomess from 'assets/images/waiting- chat.svg'
-import bgChat from 'assets/images/wallpaper.png'
+import nomess from "assets/images/waiting- chat.svg";
+import bgChat from "assets/images/wallpaper.png";
 
 moment.locale("vi");
 const Home = () => {
@@ -39,12 +46,12 @@ const Home = () => {
   const { conservation } = useAppSelector((state) => state.app) as any;
   const { user } = useAppSelector((state) => state.user) as any;
   const { onLoading } = useFnLoading();
-  const isFetchAllMess = useLoading("FETCH_ALL_MESS")
+  const isFetchAllMess = useLoading("FETCH_ALL_MESS");
   const isLoading = useLoading("MESSAGES");
   const [page, setPage] = useState(1);
   const [isLoadMore, setIsLoadMore] = useState(false);
   const [totalMessage, setTotalMessages] = useState(0);
-  const [isScrollBottom, setIsScrollBottom] = useState(false)
+  const [isScrollBottom, setIsScrollBottom] = useState(false);
 
   ///listen event socket
   useEffect(() => {
@@ -92,21 +99,22 @@ const Home = () => {
     const container = refDisplay.current;
 
     const handleScroll = () => {
-      if (container.scrollTop >= container.scrollHeight - container.clientHeight - 100) {
+      if (
+        container.scrollTop >=
+        container.scrollHeight - container.clientHeight - 300
+      ) {
         setIsScrollBottom(false);
       } else {
         setIsScrollBottom(true);
       }
     };
 
-    container.addEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll);
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-
 
   useEffect(() => {
     const container = refDisplay.current;
@@ -154,8 +162,8 @@ const Home = () => {
   const fetchAllMessages = async (conservation: any) => {
     onLoading({
       type: "FETCH_ALL_MESS",
-      value: true
-    })
+      value: true,
+    });
     dispatch(resetMessages([]));
 
     try {
@@ -170,8 +178,8 @@ const Home = () => {
     }
     onLoading({
       type: "FETCH_ALL_MESS",
-      value: false
-    })
+      value: false,
+    });
   };
 
   const loadMoreMessage = async (conservation: any, page: number) => {
@@ -214,7 +222,6 @@ const Home = () => {
       )}
 
       <div className="content" ref={refDisplay} id="scrollableDiv">
-
         {user && messages?.length ? (
           messages?.map((item: any) => (
             <Messages
@@ -225,9 +232,20 @@ const Home = () => {
           ))
         ) : (
           <div className="text-intro">
-            <img src={nomess} alt="" style={{
-              width: "100%"
-            }} />
+            <img
+              src={nomess}
+              alt=""
+              style={{
+                width: "100%",
+              }}
+            />
+          </div>
+        )}
+        {isScrollBottom && (
+          <div className="scroll-top">
+            <div className="icon" onClick={()=>scrollToBottom(refDisplay)}>
+              <ArrowDownOutlined />
+            </div>
           </div>
         )}
 
@@ -256,7 +274,28 @@ const HomeStyled: any = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-
+  .scroll-top {
+    position: sticky;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: end;
+    .icon {
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 5px #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      span {
+        font-size: 18px;
+        color: #999;
+      }
+    }
+  }
   .content {
     flex: 1;
     /* background-image: url(${bgChat}); */
@@ -325,6 +364,7 @@ const HomeStyled: any = styled.div`
       height: 50px;
       border-radius: 3px;
     }
+
     .loading {
       position: absolute;
       top: 50%;
