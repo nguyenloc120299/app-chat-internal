@@ -155,8 +155,8 @@ const RegisterForm: FC = () => {
           </Form.Item>
           <Form.Item>
             <Radio.Group onChange={onChange} value={role}>
-              <Radio value={ROLES.CUSTOMER}>Nhân viên kinh doanh</Radio>
-              <Radio value={ROLES.EMPLOYEE}>Khách hàng</Radio>
+              <Radio value={ROLES.EMPLOYEE}>Nhân viên kinh doanh</Radio>
+              <Radio value={ROLES.CUSTOMER}>Khách hàng</Radio>
               <Radio value={ROLES.TECHNIQUE}>Nhân viên kỉ thuật</Radio>
             </Radio.Group>
           </Form.Item>
