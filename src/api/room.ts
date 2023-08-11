@@ -32,9 +32,9 @@ export const create = async (roomData: RoomData) => {
 }
 
 export const addMembers = async (addRoom: Add_Room) => {
-    const res = await requestService.post('/room/add-members', {
-        data: addRoom
-    })
+    const res = await requestService.post("/room-manager/add-members", {
+      data: addRoom,
+    });
     return res.data
 }
 

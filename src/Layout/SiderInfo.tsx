@@ -121,7 +121,9 @@ const SiderInfo = () => {
           <div className="title">
             Danh sách thành viên ({conservation?.members?.length})
           </div>
-          {user?.roles && user?.roles[0]?.code === ROLES.ADMIN && (
+          {(user?.roles && user?.roles[0]?.code === ROLES.ADMIN ||
+          user?.roles && user?.roles[0]?.code === ROLES.EMPLOYEE)
+          && (
             <UserAddOutlined
               onClick={() => {
                 toggleopenModalAddUser();
