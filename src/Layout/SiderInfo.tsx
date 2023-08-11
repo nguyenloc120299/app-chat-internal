@@ -16,6 +16,8 @@ import { pushNotification } from "api/chat";
 import { resetMessUnread, updateMessages } from "store/chat";
 import { useSocket } from "hooks/useSocket";
 import TagsRole from "components/views/TagsRole";
+import { changeConservation } from "store/app";
+import { setRooms } from "store/room";
 const { Sider, Header, Content } = Layout;
 const SiderInfo = () => {
   const token = theme.useToken();
@@ -23,6 +25,7 @@ const SiderInfo = () => {
   const { user } = useAppSelector((state) => state.user) as any;
   const [openModal, toggleOpenModal] = useToggle(false);
   const { conservation } = useAppSelector((state) => state.app) as any;
+  const { rooms } = useAppSelector((state) => state.room) as any;
   const [openModalAddUser, toggleopenModalAddUser] = useToggle(false);
   const [members, setMembers] = useState<any>([]);
   const { onLoading } = useFnLoading();
@@ -31,6 +34,7 @@ const SiderInfo = () => {
   const isCallback = useCallBackApi("ADD_MEMBERS");
   const dispatch = useAppDispatch();
   const { handleSendMessage } = useSocket();
+
   const onChange = (checkedValues: CheckboxValueType[]) => {
     setMembers(checkedValues);
   };
@@ -42,16 +46,31 @@ const SiderInfo = () => {
         type: "ADD_MEMBERS",
         value: true,
       });
-      await addMembers({
+      const res = await addMembers({
         members,
         roomId: conservation?._id,
       });
-      onCallback({
-        type: "ADD_MEMBERS",
-        value: !isCallback,
-      });
-      message.success("Đã thêm thành viên mới");
+      dispatch(changeConservation(res?.data));
+      setMembers([]);
       toggleopenModalAddUser();
+
+      const newRooms = rooms?.rooms?.map((room: any) => {
+        if (room?._id=== res?.data?._id) return res?.data;
+        return room;
+      });
+      console.log(newRooms);
+      
+      dispatch(
+        setRooms({
+          ...rooms,
+          rooms: newRooms,
+        })
+      );
+      // onCallback({
+      //   type: "ADD_MEMBERS",
+      //   value: !isCallback,
+      // });
+      message.success("Đã thêm thành viên mới");
     } catch (error) {
       console.log(error);
     }
@@ -121,9 +140,8 @@ const SiderInfo = () => {
           <div className="title">
             Danh sách thành viên ({conservation?.members?.length})
           </div>
-          {(user?.roles && user?.roles[0]?.code === ROLES.ADMIN ||
-          user?.roles && user?.roles[0]?.code === ROLES.EMPLOYEE)
-          && (
+          {((user?.roles && user?.roles[0]?.code === ROLES.ADMIN) ||
+            (user?.roles && user?.roles[0]?.code === ROLES.EMPLOYEE)) && (
             <UserAddOutlined
               onClick={() => {
                 toggleopenModalAddUser();
@@ -198,19 +216,19 @@ const SiderInfo = () => {
 
 export default SiderInfo;
 const SiderInfoStyled = styled(Sider)`
-height: 100vh;
-overflow: hidden;
- &::-webkit-scrollbar {
-      width: 7px;
-    }
-    &::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: #888;
-      height: 50px;
-      border-radius: 3px;
-    }
+  height: 100vh;
+  overflow: hidden;
+  &::-webkit-scrollbar {
+    width: 7px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    height: 50px;
+    border-radius: 3px;
+  }
   .ant-layout-header {
     border-bottom: 1px solid #cccc;
     h3 {

@@ -1,7 +1,5 @@
 import { DataContext } from "context/globalSocket";
 import { useContext, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useAppSelector } from "store";
 import { Join_Room, Leave_Room, MESSAGE } from "types/joinRoom";
 
 export const useSocket = () => {
@@ -16,9 +14,11 @@ export const useSocket = () => {
   const handleJoinRoom = (data: Join_Room) => {
     socket.emit("joinRoom", data);
   };
+
   const handleLeaveRoom = (data: Leave_Room) => {
     socket.emit("leaveRoom", data);
   };
+
   const handleSendMessage = (data: MESSAGE) => {
     socket.emit("sendMessage", data);
   };
@@ -26,6 +26,7 @@ export const useSocket = () => {
   const handleRemoveRoom = (roomId: string) => {
     socket.emit("removeRoom", { roomId });
   };
+  
   const handleAddRoom = (room: any) => {
     socket.emit("addRoom", room);
   };

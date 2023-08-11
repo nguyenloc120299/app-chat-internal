@@ -12,8 +12,9 @@ const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
-  
     changeConservation: (state, action) => {
+      console.log(action.payload);
+      
       state.conservation = action.payload;
     },
     setSocket: (state, action) => {
