@@ -76,7 +76,10 @@ function App() {
     notification.open({
       message: `Vui lòng cho phép  thông báo từ telegram`,
       description:
-        "Để có thể nhận được thông báo vui lòng cho phép bot telegram được sử dụng chatID",
+        <div>
+          Để có thể nhận được thông báo vui lòng cho phép bot telegram được sử dụng chatID<br />
+          Vui lòng update đầy đủ thông tin tài khoản
+        </div>,
       placement,
       duration: 6000,
       btn: (
