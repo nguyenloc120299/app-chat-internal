@@ -78,7 +78,7 @@ function App() {
       description:
         <div>
           Để có thể nhận được thông báo vui lòng cho phép bot telegram được sử dụng chatID<br />
-          Vui lòng update đầy đủ thông tin tài khoản
+          Vui lòng update đầy đủ thông tin tài khoản và bấm "START" với bot TELEGRAM để có thể nhận thông báo
         </div>,
       placement,
       duration: 6000,
