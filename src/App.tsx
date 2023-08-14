@@ -26,7 +26,7 @@ function App() {
   const height = useContentResizer();
   const context = useContext(DataContext);
   const handleSetSocket = context.setSocket;
-  const { user } = useAppSelector((state) => state.user);
+  const { user } = useAppSelector((state) => state.user) as any;
   const isFetchRooms = useLoading("FETCH");
 
   const dispatch = useDispatch();
@@ -60,34 +60,37 @@ function App() {
           handleGetFirebaseToken();
         } else if (permission === "denied") {
           console.log("Notification permission denied");
-          openNotification("top");
+
         } else if (permission === "default") {
-          openNotification("top");
+
           console.log("Notification permission dismissed");
         }
       });
     } else {
       alert("This browser does not support notifications.");
-      handleGetFirebaseToken();
+
     }
   };
 
   const openNotification = (placement: NotificationPlacement) => {
     notification.open({
-      message: `Vui lòng cho phép trình duyệt được bật thông báo`,
+      message: `Vui lòng cho phép  thông báo từ telegram`,
       description:
-        "Để có thể nhận được tinh nhắn khi tới vui lòng cho phép trình duyệt được bật thông báo",
+        "Để có thể nhận được thông báo vui lòng cho phép bot telegram được sử dụng chatID",
       placement,
+      duration: 6000,
       btn: (
-        <Button onClick={() => Notification.requestPermission()}>
+        <Button onClick={() => window.open("https://t.me/PushNotificationV1Bot", "_blank")}>
           Câp quyền
         </Button>
       ),
     } as ArgsProps);
   };
+
   useEffect(() => {
     if (user) {
       requestNotificationPermission();
+      if (!user.chatTeleId) openNotification('top')
     }
   }, [user]);
   return (
