@@ -63,10 +63,7 @@ const ModalFile = ({
       dispatch(
         updateMessages({
           content: contentMsg,
-          sender: {
-            name: user?.name,
-            _id: user?._id,
-          },
+          sender: user,
           createdAt: new Date(),
           file: URL.createObjectURL(file),
           typeFile: isImageFile(file)
