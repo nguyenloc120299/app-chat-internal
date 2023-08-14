@@ -23,7 +23,7 @@ if ("serviceWorker" in navigator) {
       });
   });
 } else {
-  console.warn("Service Worker is not supported in this browser.");
+  alert("Service Worker is not supported in this browser.");
 }
 
 root.render(
