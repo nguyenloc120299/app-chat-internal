@@ -2,7 +2,7 @@ import { Avatar, Button, Form, Input, Modal, Tag, message } from "antd";
 import coverImage from "assets/images/coverImage.jpg";
 import styled from "styled-components";
 import { UserOutlined, UploadOutlined } from "@ant-design/icons";
-import { FileUploader } from "react-drag-drop-files";
+// import { FileUploader } from "react-drag-drop-files";
 import { useState } from "react";
 import { useForm } from "antd/es/form/Form";
 import { updateUser } from "api/user";
@@ -12,6 +12,7 @@ import { useAppDispatch } from "store";
 import { setUser } from "store/user";
 import TagsRole from "components/views/TagsRole";
 import moment from "moment";
+import FileUploader from "components/views/FileUploader";
 
 type Props_Type = {
   isModalOpen: boolean;
@@ -118,7 +119,7 @@ const ModalProfile = ({
           )}
           {!isShow && (
             <div className="uploadAvt">
-              <FileUploader handleChange={handleChange}>
+              <FileUploader handleChange={handleChange} id="update-profile">
                 <UploadOutlined
                   style={{
                     color: "#888",

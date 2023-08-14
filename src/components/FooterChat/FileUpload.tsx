@@ -2,9 +2,10 @@ import { message, Upload } from "antd";
 import React, { useState } from "react";
 import { LinkOutlined } from "@ant-design/icons";
 
-import { FileUploader } from "react-drag-drop-files";
+// import { FileUploader } from "react-drag-drop-files";
 import useToggle from "hooks/useToggle";
 import ModalFile from "components/Modals/ModalFile";
+import FileUploader from "components/views/FileUploader";
 type Props_Type = {
   setPage: any
 };
@@ -35,11 +36,16 @@ const FileUpload = ({ setPage }: Props_Type) => {
         file={file}
         setPage={setPage}
       />
-      <FileUploader handleChange={handleChange} name="file" types={fileTypes}>
+      <FileUploader handleChange={handleChange} id="send-chat">
         <LinkOutlined
           style={{ fontSize: "30px", color: "#aaa", cursor: "pointer" }}
         />
       </FileUploader>
+      {/* <FileUploader handleChange={handleChange} name="file" types={fileTypes}>
+        <LinkOutlined
+          style={{ fontSize: "30px", color: "#aaa", cursor: "pointer" }}
+        />
+      </FileUploader> */}
     </>
   );
 };

@@ -16,9 +16,10 @@ import { create } from "api/room";
 
 import ListUsers from "components/views/ListUsers";
 import { useFnLoading, useLoading } from "hooks/useLoading";
-import { FileUploader } from "react-drag-drop-files";
+// import { FileUploader } from "react-drag-drop-files";
 import { TYPEFILE, uploadFile } from "api/until";
 import { useSocket } from "hooks/useSocket";
+import FileUploader from "components/views/FileUploader";
 type Props_Type = {
   isModalOpen: boolean;
   handleOk?: any;
@@ -102,7 +103,7 @@ const ModalAddGroup = ({ isModalOpen, handleCancel, handleOk, fetchRooms, onupda
 
       <Row gutter={30}>
         <Col span={4}>
-          <FileUploader handleChange={handleChange}>
+          <FileUploader handleChange={handleChange} id="add-room">
             <div className="avatar">
               {
                 avatarRoom ? <img src={URL.createObjectURL(avatarRoom)} />
