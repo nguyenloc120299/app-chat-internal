@@ -52,6 +52,7 @@ function App() {
         )
       );
   }, []);
+
   const requestNotificationPermission = () => {
     if ("Notification" in window) {
       Notification.requestPermission().then((permission) => {
@@ -67,16 +68,21 @@ function App() {
       });
     } else {
       alert("This browser does not support notifications.");
+      handleGetFirebaseToken();
     }
   };
+
   const openNotification = (placement: NotificationPlacement) => {
     notification.open({
       message: `Vui lòng cho phép trình duyệt được bật thông báo`,
       description:
         "Để có thể nhận được tinh nhắn khi tới vui lòng cho phép trình duyệt được bật thông báo",
       placement,
-      btn: <Button onClick={() => Notification.requestPermission()}>Câp quyền</Button>
-
+      btn: (
+        <Button onClick={() => Notification.requestPermission()}>
+          Câp quyền
+        </Button>
+      ),
     } as ArgsProps);
   };
   useEffect(() => {
