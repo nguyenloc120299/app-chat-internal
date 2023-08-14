@@ -66,7 +66,7 @@ function App() {
         }
       });
     } else {
-      console.log("This browser does not support notifications.");
+      alert("This browser does not support notifications.");
     }
   };
   const openNotification = (placement: NotificationPlacement) => {
