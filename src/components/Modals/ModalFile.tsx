@@ -97,10 +97,7 @@ const ModalFile = ({
         createdAt: new Date(),
         roomId: conservation?._id,
         role: user?.roles[0],
-        sender: {
-          name: user?.name,
-          _id: user?._id,
-        },
+        sender: user,
         file: fileUrl?.url,
         typeFile: isImageFile(file)
           ? TypeSend.IMAGE
