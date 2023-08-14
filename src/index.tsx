@@ -18,8 +18,8 @@ if ("serviceWorker" in navigator) {
       .then((registration) => {
         console.log("Service Worker registered successfully.");
       })
-      .catch((error) => {
-        console.error("Service Worker registration failed:", error);
+      .catch((error: any) => {
+        alert("Service Worker registration failed:" + error);
       });
   });
 } else {
